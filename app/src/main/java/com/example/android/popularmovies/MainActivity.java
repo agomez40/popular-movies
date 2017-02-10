@@ -16,8 +16,9 @@
 
 package com.example.android.popularmovies;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.widget.GridView;
 
 /**
  * @version 1.0.0 2017/02/09
@@ -27,11 +28,24 @@ import android.os.Bundle;
 public class MainActivity extends AppCompatActivity {
 
     /**
+     * The GridView to show movie posters
+     */
+    private GridView mGridViewMovies;
+
+    /**
      * {@inheritDoc}
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Get the movies grid view
+        mGridViewMovies = (GridView) findViewById(R.id.gv_movies);
+
+        // TODO Restore app state when device rotates from the savedInstanceState
+        // TODO Create an adapter for the GridView
+        // TODO Implement onItemClick for each GridView item and start the MovieDetailActivity
+        // TODO pass extra data on the MovieDetailActivity intent
     }
 }
