@@ -23,4 +23,6 @@
     <string name="movie_db_api_v4_key" translatable="false">YOUR V4 API KEY</string>
     <string name="action.button.retry">Retry</string>
     <string name="content.description.errorImage">Error image view</string>
+    <string name="action.menu.orderByMostPopular">Sort by most popular</string>
+    <string name="action.menu.orderByTopRated">Sort by top rated</string>
 </resources>
