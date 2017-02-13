@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright 2017 Luis Alberto Gómez Rodríguez
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="72dp"
+    android:height="72dp"
+    android:viewportHeight="512"
+    android:viewportWidth="512">
+
+    <path
+        android:fillColor="#9E9E9E"
+        android:pathData="M413.9,213.3c-14.9-72.5-78.9-128-157.9-128c-61.9,0-115.2,34.1-140.8,85.3C51.2,177.1,0,232.5,0,298.7
+c0,70.4,57.6,128,128,128h277.3c59.7,0,106.7-46.9,106.7-106.7C512,264.5,467.2,217.6,413.9,213.3z
+M439.5,349.9
+c6.4,4.3,8.5,10.7,4.3,17.1c-4.3,6.4-10.7,8.5-17.1,4.3c-106.7-68.3-238.9-68.3-343.5,0c-6.4,4.3-12.8,2.1-17.1-4.3
+c-4.3-6.4-2.1-14.9,4.3-17.1c57.6-36.3,119.5-55.5,183.5-55.5C320,294.4,384,313.6,439.5,349.9z" />
+</vector>
