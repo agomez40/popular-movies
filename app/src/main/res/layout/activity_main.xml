@@ -18,7 +18,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.android.popularmovies.MainActivity">
+    tools:context="com.example.android.popularmovies.ui.MainActivity">
 
     <!-- The main GridView, shows the movie posters -->
     <GridView

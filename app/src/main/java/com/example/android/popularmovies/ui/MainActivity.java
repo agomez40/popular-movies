@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.android.popularmovies;
+package com.example.android.popularmovies.ui;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -27,6 +27,7 @@ import android.view.View;
 import android.widget.GridView;
 import android.widget.ProgressBar;
 
+import com.example.android.popularmovies.R;
 import com.example.android.popularmovies.model.Movie;
 import com.example.android.popularmovies.util.NetworkUtil;
 import com.example.android.popularmovies.view.ErrorView;
@@ -42,8 +43,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import okhttp3.OkHttpClient;
 
 /**
  * @version 1.0.0 2017/02/09
@@ -84,6 +83,10 @@ public class MainActivity extends AppCompatActivity {
      * The current page of the last query to the API
      */
     private int mPage = 0;
+
+    /**
+     * The total results
+     */
     private int mPages = 0;
 
 
@@ -119,6 +122,7 @@ public class MainActivity extends AppCompatActivity {
         // killed and restarted.
         savedInstanceState.putShort("sort", mSort);
         savedInstanceState.putInt("page", mPage);
+        savedInstanceState.putInt("mPages", mPages);
     }
 
     /**
