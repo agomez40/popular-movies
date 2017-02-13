@@ -21,7 +21,7 @@
     tools:context="com.example.android.popularmovies.ui.MainActivity">
 
     <!-- The main GridView, shows the movie posters -->
-    <GridView
+    <android.support.v7.widget.RecyclerView
         android:id="@+id/gv_movies"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

@@ -19,12 +19,13 @@ package com.example.android.popularmovies.ui;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.GridView;
 import android.widget.ProgressBar;
 
 import com.example.android.popularmovies.R;
@@ -49,12 +50,16 @@ import java.util.Map;
  * @see AppCompatActivity
  * @since 1.0.0 2017/02/09
  */
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements MoviesAdapter.MovieItemClickListener {
+    /**
+     * Grid number of columns
+     */
+    private static final int NUM_COLUMNS = 2;
 
     /**
      * The GridView to show movie posters
      */
-    private GridView mGridViewMovies;
+    private RecyclerView mGridViewMovies;
 
     /**
      * The custom error view
@@ -89,6 +94,10 @@ public class MainActivity extends AppCompatActivity {
      */
     private int mPages = 0;
 
+    /**
+     * The GridView adapter
+     */
+    private MoviesAdapter mMoviesAdapter;
 
     /**
      * {@inheritDoc}
@@ -99,16 +108,19 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         // Get the movies grid view
-        mGridViewMovies = (GridView) findViewById(R.id.gv_movies);
+        mGridViewMovies = (RecyclerView) findViewById(R.id.gv_movies);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, NUM_COLUMNS);
+        mGridViewMovies.setLayoutManager(gridLayoutManager);
+        mGridViewMovies.setHasFixedSize(true);
+
         mErrorView = (ErrorView) findViewById(R.id.ev_popular_movies);
         mProgressBar = (ProgressBar) findViewById(R.id.pb_loading_movies);
 
         // Restore the app state
         initUI(savedInstanceState);
 
-        // TODO Create an adapter for the GridView
-        // TODO Implement onItemClick for each GridView item and start the MovieDetailActivity
-        // TODO pass extra data on the MovieDetailActivity intent
+        // The adapter instance
+        mMoviesAdapter = new MoviesAdapter(null, this);
     }
 
     /**
@@ -167,6 +179,14 @@ public class MainActivity extends AppCompatActivity {
             mMovieTask = null;
         }
         super.onDestroy();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onMovieClick(Movie movie) {
+
     }
 
     /**
@@ -286,7 +306,7 @@ public class MainActivity extends AppCompatActivity {
                 // Parse the movies into our model
                 List<Movie> movies = new ArrayList<>(0);
 
-                for(int i = 0; i<results.length(); i++){
+                for (int i = 0; i < results.length(); i++) {
                     movies.add(Movie.newInstace(results.getJSONObject(i)));
                 }
 

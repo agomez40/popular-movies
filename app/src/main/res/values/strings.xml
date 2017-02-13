@@ -25,4 +25,5 @@
     <string name="content.description.errorImage">Error image view</string>
     <string name="action.menu.orderByMostPopular">Sort by most popular</string>
     <string name="action.menu.orderByTopRated">Sort by top rated</string>
+    <string name="content.description.moviePoster">Movie Poster</string>
 </resources>
