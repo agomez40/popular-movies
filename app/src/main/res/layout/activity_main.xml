@@ -14,30 +14,44 @@
   ~ limitations under the License.
   -->
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.example.android.popularmovies.ui.MainActivity">
 
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/appbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:layout_alignParentTop="true" />
+    </android.support.design.widget.AppBarLayout>
+
     <!-- The main GridView, shows the movie posters -->
     <android.support.v7.widget.RecyclerView
         android:id="@+id/gv_movies"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:numColumns="auto_fit" />
-
-    <!-- Custom error view to show error messages like no network or results found -->
-    <com.example.android.popularmovies.view.ErrorView
-        android:id="@+id/ev_popular_movies"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_gravity="center" />
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/appbar" />
 
     <!-- Progress bar to indicate the user that the movies are being loaded -->
     <ProgressBar
         android:id="@+id/pb_loading_movies"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_centerInParent="true" />
+
+    <!-- Custom error view to show error messages like no network or results found -->
+    <com.example.android.popularmovies.util.ErrorView
+        android:id="@+id/ev_popular_movies"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_gravity="center" />
-</FrameLayout>
+</RelativeLayout>

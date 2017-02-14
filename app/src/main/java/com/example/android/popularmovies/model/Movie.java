@@ -37,7 +37,7 @@ public class Movie implements Parcelable {
      *
      * @since 1.0.0 2017/02/12
      */
-    public final Parcelable.Creator<Movie> CREATOR = new Parcelable.Creator<Movie>() {
+    public final static Parcelable.Creator<Movie> CREATOR = new Parcelable.Creator<Movie>() {
 
         /**
          * {@inheritDoc}

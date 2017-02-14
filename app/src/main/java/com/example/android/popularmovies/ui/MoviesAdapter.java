@@ -116,7 +116,11 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesView
      * @since 1.0.0 2017/02/13
      */
     ArrayList<? extends Parcelable> getItems() {
-        return new ArrayList<>(mMovies);
+        if (mMovies != null) {
+            return new ArrayList<>(mMovies);
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -171,6 +175,8 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesView
             super(itemView);
 
             moviePoster = (ImageView) itemView.findViewById(R.id.iv_movie_poster);
+
+            moviePoster.setOnClickListener(this);
         }
 
         /**
@@ -196,7 +202,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesView
             // Use Picasso to load the image into the view
             Picasso.with(moviePoster.getContext())
                     .load("http://image.tmdb.org/t/p/w185/" + movie.getPosterPath())
-                    .fit()
+                    .placeholder(R.drawable.ic_movie_placeholder)
                     .into(moviePoster);
         }
     }

@@ -16,12 +16,15 @@
 
 package com.example.android.popularmovies.ui;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.StringRes;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -31,8 +34,9 @@ import android.widget.ProgressBar;
 
 import com.example.android.popularmovies.R;
 import com.example.android.popularmovies.model.Movie;
+import com.example.android.popularmovies.ui.detail.MovieDetailActivity;
+import com.example.android.popularmovies.util.ErrorView;
 import com.example.android.popularmovies.util.NetworkUtil;
-import com.example.android.popularmovies.view.ErrorView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -109,11 +113,21 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+
+        setSupportActionBar(toolbar);
+
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle(R.string.app_name);
+        }
+
         // Get the movies grid view
         mGridViewMovies = (RecyclerView) findViewById(R.id.gv_movies);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this, NUM_COLUMNS);
+        gridLayoutManager.setOrientation(GridLayoutManager.VERTICAL);
+        mGridViewMovies.setItemAnimator(new DefaultItemAnimator());
         mGridViewMovies.setLayoutManager(gridLayoutManager);
-        mGridViewMovies.setHasFixedSize(false);
+        mGridViewMovies.setHasFixedSize(true);
 
         mErrorView = (ErrorView) findViewById(R.id.ev_popular_movies);
         mErrorView.setErrorViewListener(this);
@@ -139,7 +153,10 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         savedInstanceState.putShort("sort", mSort);
         savedInstanceState.putInt("page", mPage);
         savedInstanceState.putInt("mPages", mPages);
-        savedInstanceState.putParcelableArrayList("movies", mMoviesAdapter.getItems());
+
+        if (mMoviesAdapter.getItems() != null) {
+            savedInstanceState.putParcelableArrayList("movies", mMoviesAdapter.getItems());
+        }
         super.onSaveInstanceState(savedInstanceState);
     }
 
@@ -192,8 +209,10 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
      */
     @Override
     public void onRetryClick() {
-        // TODO retry the action on error
+        // retry the action on error, fetch the movies
         mErrorView.setVisibility(View.GONE);
+
+        sortByMostPopular();
     }
 
     /**
@@ -201,11 +220,16 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
      */
     @Override
     public void onMovieClick(Movie movie) {
-        // TODO forward to the Detail activity
+        // Forward to the Detail activity and pass the movie detail
+        Intent intent = new Intent(this, MovieDetailActivity.class);
+        intent.putExtra("movie", movie);
+        startActivity(intent);
     }
 
     /**
-     * @param savedInstanceState
+     * Init the main UI
+     *
+     * @param savedInstanceState the saved instance state
      * @since 1.0.0 2017/02/12
      */
     private void initUI(Bundle savedInstanceState) {
@@ -215,9 +239,23 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         mGridViewMovies.setVisibility(View.VISIBLE);
 
         if (savedInstanceState != null && !savedInstanceState.isEmpty()) {
-            // TODO Restore app state when device rotates from the savedInstanceState
+            /*
+             * TODO Restore app state when device rotates from the savedInstanceState using the parcelable
+             * instead of calling again the API
+             */
+            switch (savedInstanceState.getInt("mSort")) {
+                case 1:
+                    sortByMostPopular();
+                    break;
+                case 2:
+                    sortByTopRated();
+                    break;
+                default:
+                    sortByMostPopular();
+                    break;
+            }
         } else {
-            getMovies();
+            sortByMostPopular();
         }
     }
 
@@ -254,29 +292,6 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
     }
 
     /**
-     * Gets the initial movies to display
-     *
-     * @since 1.0.0 2017/02/12
-     */
-    private void getMovies() {
-        mMovieTask = new MovieDatabaseQueryTask();
-
-        // Query parameters
-        // NOTE: Optional params "language" Pass a ISO 639-1 value to display translated data
-        Map<String, String> params = new HashMap<>();
-        params.put("api_key", getString(R.string.movie_db_api_v3_key));
-
-        try {
-            // create the URL and execute the async task
-            URL url = NetworkUtil.buildUrl(NetworkUtil.GET_LATEST_MOVIES, params);
-            mMovieTask.execute(url);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-            showError(R.string.error_no_results);
-        }
-    }
-
-    /**
      * @since 1.0.0 2017/02/12
      */
     private void sortByMostPopular() {
@@ -285,6 +300,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         // Check if a task is running and cancel it
         if (mMovieTask != null) {
             mMovieTask.cancel(true);
+            mMovieTask = null;
         }
 
         // Query parameters
@@ -295,6 +311,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         try {
             // create the URL and execute the async task
             URL url = NetworkUtil.buildUrl(NetworkUtil.GET_POPULAR_MOVIES, params);
+            mMovieTask = new MovieDatabaseQueryTask();
             mMovieTask.execute(url);
         } catch (MalformedURLException e) {
             e.printStackTrace();
@@ -311,6 +328,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         // Check if a task is running and cancel it
         if (mMovieTask != null) {
             mMovieTask.cancel(true);
+            mMovieTask = null;
         }
 
         // Query parameters
@@ -321,6 +339,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         try {
             // create the URL and execute the async task
             URL url = NetworkUtil.buildUrl(NetworkUtil.GET_TOP_RATED_MOVIES, params);
+            mMovieTask = new MovieDatabaseQueryTask();
             mMovieTask.execute(url);
         } catch (MalformedURLException e) {
             e.printStackTrace();
@@ -347,6 +366,8 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
                 // Hide the GridView and show the progress bar
                 showProgressIndicator(true);
             } else {
+                // cancel itself
+                cancel(true);
                 showError(R.string.error_no_network);
             }
         }

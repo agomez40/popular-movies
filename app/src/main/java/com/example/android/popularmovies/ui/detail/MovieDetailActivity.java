@@ -18,14 +18,45 @@ package com.example.android.popularmovies.ui.detail;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 
 import com.example.android.popularmovies.R;
+import com.example.android.popularmovies.model.Movie;
 
+/**
+ * @author Luis Alberto Gómez Rodríguez (alberto.gomez@cargomovil.com)
+ * @version 1.0.0 2017/02/14
+ * @see AppCompatActivity
+ * @since 1.0.0 2017/02/14
+ */
 public class MovieDetailActivity extends AppCompatActivity {
 
+    /**
+     * The current movie
+     */
+    private Movie mMovie;
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_detail);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+
+        setSupportActionBar(toolbar);
+
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+
+        // TODO Get the extras and set the movie title
+        if (!getIntent().getExtras().isEmpty()) {
+            mMovie = getIntent().getParcelableExtra("movie");
+
+            getSupportActionBar().setTitle(mMovie.getTitle());
+        }
     }
 }

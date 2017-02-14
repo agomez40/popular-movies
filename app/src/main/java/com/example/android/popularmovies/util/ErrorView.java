@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.android.popularmovies.view;
+package com.example.android.popularmovies.util;
 
 import android.animation.LayoutTransition;
 import android.content.Context;

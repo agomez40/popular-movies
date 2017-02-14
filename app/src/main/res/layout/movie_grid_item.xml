@@ -14,8 +14,16 @@
   ~ limitations under the License.
   -->
 
-<ImageView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/iv_movie_poster"
-    android:layout_width="match_parent"
+<com.example.android.popularmovies.util.PosterView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:contentDescription="@string/content.description.moviePoster" />
+    android:orientation="vertical">
+
+    <ImageView
+        android:id="@+id/iv_movie_poster"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:adjustViewBounds="true"
+        android:contentDescription="@string/content.description.moviePoster"
+        android:scaleType="fitXY" />
+</com.example.android.popularmovies.util.PosterView>
