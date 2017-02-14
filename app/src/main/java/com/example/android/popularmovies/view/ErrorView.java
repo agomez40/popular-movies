@@ -98,7 +98,6 @@ public class ErrorView extends LinearLayout {
         // Inflate the layout
         LayoutInflater inflater = LayoutInflater.from(context);
         inflater.inflate(R.layout.layout_error_view, this, true);
-        setOrientation(VERTICAL);
         setGravity(Gravity.CENTER);
 
         // Allow for animations

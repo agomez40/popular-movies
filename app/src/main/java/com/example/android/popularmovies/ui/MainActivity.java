@@ -113,7 +113,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         mGridViewMovies = (RecyclerView) findViewById(R.id.gv_movies);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this, NUM_COLUMNS);
         mGridViewMovies.setLayoutManager(gridLayoutManager);
-        mGridViewMovies.setHasFixedSize(true);
+        mGridViewMovies.setHasFixedSize(false);
 
         mErrorView = (ErrorView) findViewById(R.id.ev_popular_movies);
         mErrorView.setErrorViewListener(this);
@@ -124,7 +124,8 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         initUI(savedInstanceState);
 
         // The adapter instance
-        mMoviesAdapter = new MoviesAdapter(null, this);
+        mMoviesAdapter = new MoviesAdapter(this);
+        mGridViewMovies.setAdapter(mMoviesAdapter);
     }
 
     /**
@@ -213,7 +214,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         mProgressBar.setVisibility(View.GONE);
         mGridViewMovies.setVisibility(View.VISIBLE);
 
-        if (!savedInstanceState.isEmpty()) {
+        if (savedInstanceState != null && !savedInstanceState.isEmpty()) {
             // TODO Restore app state when device rotates from the savedInstanceState
         } else {
             getMovies();
@@ -319,7 +320,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
 
         try {
             // create the URL and execute the async task
-            URL url = NetworkUtil.buildUrl(NetworkUtil.GET_POPULAR_MOVIES, params);
+            URL url = NetworkUtil.buildUrl(NetworkUtil.GET_TOP_RATED_MOVIES, params);
             mMovieTask.execute(url);
         } catch (MalformedURLException e) {
             e.printStackTrace();
@@ -391,7 +392,9 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
             super.onPostExecute(movies);
 
             if (movies != null && !movies.isEmpty()) {
-                // TODO fill the grid adapter and display the movies
+                // fill the grid adapter and display the movies
+                mMoviesAdapter.setMovies(movies);
+                showProgressIndicator(false);
             } else {
                 // show error view with no data :(
                 showError(R.string.error_no_results);

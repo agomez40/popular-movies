@@ -30,8 +30,8 @@
     <!-- Custom error view to show error messages like no network or results found -->
     <com.example.android.popularmovies.view.ErrorView
         android:id="@+id/ev_popular_movies"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_gravity="center" />
 
     <!-- Progress bar to indicate the user that the movies are being loaded -->

@@ -18,7 +18,6 @@ package com.example.android.popularmovies.ui;
 
 import android.os.Parcelable;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -58,11 +57,10 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesView
     /**
      * Constructor
      *
-     * @param movies The movies to display in the list or grid
+     * @param listener The on click listener
      * @since 1.0.0 2017/02/13
      */
-    public MoviesAdapter(List<Movie> movies, MovieItemClickListener listener) {
-        this.mMovies = movies;
+    public MoviesAdapter(MovieItemClickListener listener) {
         this.mListener = listener;
     }
 
@@ -99,7 +97,6 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesView
      */
     @Override
     public void onBindViewHolder(MoviesViewHolder holder, int position) {
-        Log.d(TAG, "Selected #: " + position);
         holder.bind(mMovies.get(position));
     }
 
@@ -120,6 +117,17 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesView
      */
     ArrayList<? extends Parcelable> getItems() {
         return new ArrayList<>(mMovies);
+    }
+
+    /**
+     * Sets the data to display
+     *
+     * @param movies the collection of movies
+     * @since 1.0.0 2017/02/13
+     */
+    public void setMovies(List<Movie> movies) {
+        this.mMovies = movies;
+        notifyDataSetChanged();
     }
 
     /**
@@ -187,7 +195,8 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesView
         void bind(Movie movie) {
             // Use Picasso to load the image into the view
             Picasso.with(moviePoster.getContext())
-                    .load(movie.getPosterPath())
+                    .load("http://image.tmdb.org/t/p/w185/" + movie.getPosterPath())
+                    .fit()
                     .into(moviePoster);
         }
     }

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.example.android.popularmovies.util;
 
 import android.content.Context;
@@ -42,25 +43,39 @@ import okhttp3.Response;
  */
 public class NetworkUtil {
     /**
-     * The movie database base API URI
-     */
-    private static final String MOVIE_DATABASE_BASE_URL =
-            "https://api.themoviedb.org/3/movies/";
-
-    /**
      * https://developers.themoviedb.org/3/movies/get-top-rated-movies
      */
     public static final String GET_TOP_RATED_MOVIES = "top_rated";
-
     /**
      * https://developers.themoviedb.org/3/movies/get-popular-movies
      */
     public static final String GET_POPULAR_MOVIES = "popular";
-
     /**
      * https://developers.themoviedb.org/3/movies/get-latest-movie
      */
-    public static final String GET_LATEST_MOVIES = "latest";
+    public static final String GET_LATEST_MOVIES = "now_playing";
+    /**
+     * The movie database base API URI
+     */
+    private static final String MOVIE_DATABASE_BASE_URL =
+            "https://api.themoviedb.org/3/movie/";
+
+    /**
+     * Constructor
+     * <p/>
+     * This class can't be instantiated directly, creating an
+     * instance of the class using {@code new NetworkUtil} will throw
+     * an {@link AssertionError}
+     * <p/>
+     * All members and methods are static, and MUST be called
+     * using it's static form i.e. {@code NetworkUtil.isNetworkConnected(context)}.
+     *
+     * @since 1.0.0 2017/02/09
+     */
+    private NetworkUtil() {
+        /* throws an new AssertionError */
+        throw new AssertionError();
+    }
 
     /**
      * Builds the URL used to query The Movie Database.
@@ -98,14 +113,20 @@ public class NetworkUtil {
      * @since 1.0.0 2017/02/12
      */
     public static JSONObject queryMovieDatabaseAPI(URL url) throws IOException, JSONException {
+        Log.d(NetworkUtil.class.getSimpleName(), "GET URL= " + url.toString());
+
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
                 .url(url)
                 .build();
 
         Response response = client.newCall(request).execute();
-        JSONObject jsonResponse = new JSONObject(response.body().toString());
 
+        JSONObject jsonResponse = null;
+
+        if (response.code() == 200) {
+            jsonResponse = new JSONObject(response.body().string());
+        }
         // Close the stream, or it will leak memory
         response.close();
 
@@ -124,22 +145,5 @@ public class NetworkUtil {
                 (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
         return netInfo != null && netInfo.isConnectedOrConnecting();
-    }
-
-    /**
-     * Constructor
-     * <p/>
-     * This class can't be instantiated directly, creating an
-     * instance of the class using {@code new NetworkUtil} will throw
-     * an {@link AssertionError}
-     * <p/>
-     * All members and methods are static, and MUST be called
-     * using it's static form i.e. {@code NetworkUtil.isNetworkConnected(context)}.
-     *
-     * @since 1.0.0 2017/02/09
-     */
-    private NetworkUtil() {
-        /* throws an new AssertionError */
-        throw new AssertionError();
     }
 }
