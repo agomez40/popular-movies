@@ -18,12 +18,26 @@
     <!-- The application name -->
     <string name="app_name">Pop Movies</string>
 
-    <!-- The Movie DB API keys, change the default values using your own API Keys -->
+    <!-- Activity titles -->
+    <string name="title_activity_movie_detail">Movie Detail</string>
+
+    <!-- TODO The Movie DB API keys, change the default values using your own API Keys -->
     <string name="movie_db_api_v3_key" translatable="false">YOUR V3 API KEY</string>
     <string name="movie_db_api_v4_key" translatable="false">YOUR V4 API KEY</string>
-    <string name="action.button.retry">Retry</string>
+
+    <!-- content description for image views -->
     <string name="content.description.errorImage">Error image view</string>
-    <string name="action.menu.orderByMostPopular">Sort by most popular</string>
-    <string name="action.menu.orderByTopRated">Sort by top rated</string>
     <string name="content.description.moviePoster">Movie Poster</string>
+
+    <!-- User actions -->
+    <string name="action.button.retry">Retry</string>
+    <string name="action.menu.orderByMostPopular">Most Popular</string>
+    <string name="action.menu.orderByTopRated">Top Rated</string>
+
+    <!-- Labels -->
+    <string name="label.trailers">Trailers</string>
+
+    <!-- Error messages -->
+    <string name="error_no_network">Oops! Could not load movies, please check your internet connection.</string>
+    <string name="error_no_results">Data not available.</string>
 </resources>

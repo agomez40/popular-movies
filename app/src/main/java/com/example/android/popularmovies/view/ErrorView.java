@@ -177,7 +177,7 @@ public class ErrorView extends LinearLayout {
      *
      * @since 1.0.0 2017/02/10
      */
-    interface ErrorViewListener {
+    public interface ErrorViewListener {
         /**
          * Button click listener
          *

@@ -18,6 +18,7 @@ package com.example.android.popularmovies.ui;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.StringRes;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -50,7 +51,8 @@ import java.util.Map;
  * @see AppCompatActivity
  * @since 1.0.0 2017/02/09
  */
-public class MainActivity extends AppCompatActivity implements MoviesAdapter.MovieItemClickListener {
+public class MainActivity extends AppCompatActivity implements MoviesAdapter.MovieItemClickListener,
+        ErrorView.ErrorViewListener {
     /**
      * Grid number of columns
      */
@@ -114,6 +116,8 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         mGridViewMovies.setHasFixedSize(true);
 
         mErrorView = (ErrorView) findViewById(R.id.ev_popular_movies);
+        mErrorView.setErrorViewListener(this);
+
         mProgressBar = (ProgressBar) findViewById(R.id.pb_loading_movies);
 
         // Restore the app state
@@ -128,13 +132,14 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
      */
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
-        super.onSaveInstanceState(savedInstanceState);
         // Save UI state changes to the savedInstanceState.
         // This bundle will be passed to onCreate if the process is
         // killed and restarted.
         savedInstanceState.putShort("sort", mSort);
         savedInstanceState.putInt("page", mPage);
         savedInstanceState.putInt("mPages", mPages);
+        savedInstanceState.putParcelableArrayList("movies", mMoviesAdapter.getItems());
+        super.onSaveInstanceState(savedInstanceState);
     }
 
     /**
@@ -185,8 +190,17 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
      * {@inheritDoc}
      */
     @Override
-    public void onMovieClick(Movie movie) {
+    public void onRetryClick() {
+        // TODO retry the action on error
+        mErrorView.setVisibility(View.GONE);
+    }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onMovieClick(Movie movie) {
+        // TODO forward to the Detail activity
     }
 
     /**
@@ -225,6 +239,20 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
     }
 
     /**
+     * Shows the error view with the provided string message
+     *
+     * @param stringId the resource string
+     * @since 1.0.0 2017/02/13
+     */
+    private void showError(@StringRes int stringId) {
+        mGridViewMovies.setVisibility(View.GONE);
+        mProgressBar.setVisibility(View.GONE);
+
+        mErrorView.setErrorMessage(getString(stringId));
+        mErrorView.setVisibility(View.VISIBLE);
+    }
+
+    /**
      * Gets the initial movies to display
      *
      * @since 1.0.0 2017/02/12
@@ -243,28 +271,66 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
             mMovieTask.execute(url);
         } catch (MalformedURLException e) {
             e.printStackTrace();
-
-            // TODO show error view
+            showError(R.string.error_no_results);
         }
     }
 
     /**
-     *
+     * @since 1.0.0 2017/02/12
      */
     private void sortByMostPopular() {
         mSort = 1;
-        // TODO call the API to sort by Most Popular
+
+        // Check if a task is running and cancel it
+        if (mMovieTask != null) {
+            mMovieTask.cancel(true);
+        }
+
+        // Query parameters
+        // NOTE: Optional params "language" Pass a ISO 639-1 value to display translated data
+        Map<String, String> params = new HashMap<>();
+        params.put("api_key", getString(R.string.movie_db_api_v3_key));
+
+        try {
+            // create the URL and execute the async task
+            URL url = NetworkUtil.buildUrl(NetworkUtil.GET_POPULAR_MOVIES, params);
+            mMovieTask.execute(url);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+            showError(R.string.error_no_results);
+        }
     }
 
     /**
-     *
+     * @since 1.0.0 2017/02/12
      */
     private void sortByTopRated() {
         mSort = 2;
-        // TODO call the API to sort by top rated
+
+        // Check if a task is running and cancel it
+        if (mMovieTask != null) {
+            mMovieTask.cancel(true);
+        }
+
+        // Query parameters
+        // NOTE: Optional params "language" Pass a ISO 639-1 value to display translated data
+        Map<String, String> params = new HashMap<>();
+        params.put("api_key", getString(R.string.movie_db_api_v3_key));
+
+        try {
+            // create the URL and execute the async task
+            URL url = NetworkUtil.buildUrl(NetworkUtil.GET_POPULAR_MOVIES, params);
+            mMovieTask.execute(url);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+            showError(R.string.error_no_results);
+        }
     }
 
     /**
+     * @author Luis Alberto Gómez Rodríguez (lagomez40@gmail.com)
+     * @version 1.0.0 2017/02/12
+     * @see AsyncTask
      * @since 1.0.0 2017/02/12
      */
     private class MovieDatabaseQueryTask extends AsyncTask<URL, Void, List<Movie>> {
@@ -280,7 +346,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
                 // Hide the GridView and show the progress bar
                 showProgressIndicator(true);
             } else {
-                // TODO show network error view
+                showError(R.string.error_no_network);
             }
         }
 
@@ -307,7 +373,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
                 List<Movie> movies = new ArrayList<>(0);
 
                 for (int i = 0; i < results.length(); i++) {
-                    movies.add(Movie.newInstace(results.getJSONObject(i)));
+                    movies.add(Movie.newInstance(results.getJSONObject(i)));
                 }
 
                 return movies;
@@ -327,7 +393,8 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
             if (movies != null && !movies.isEmpty()) {
                 // TODO fill the grid adapter and display the movies
             } else {
-                // TODO show error view with no data :(
+                // show error view with no data :(
+                showError(R.string.error_no_results);
             }
         }
     }

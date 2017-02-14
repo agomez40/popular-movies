@@ -16,6 +16,7 @@
 
 package com.example.android.popularmovies.ui;
 
+import android.os.Parcelable;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -27,6 +28,7 @@ import com.example.android.popularmovies.R;
 import com.example.android.popularmovies.model.Movie;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -109,6 +111,16 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesView
         return mMovies.size();
     }
 
+
+    /**
+     * Gets all the current adapter movies
+     *
+     * @return the items stored in the adapter
+     * @since 1.0.0 2017/02/13
+     */
+    ArrayList<? extends Parcelable> getItems() {
+        return new ArrayList<>(mMovies);
+    }
 
     /**
      * @since 1.0.0 2017/02/13

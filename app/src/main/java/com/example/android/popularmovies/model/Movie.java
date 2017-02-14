@@ -13,7 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.example.android.popularmovies.model;
+
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -24,8 +28,33 @@ import org.json.JSONObject;
  *
  * @version 1.0.0 2016/02/12
  * @since 1.0.0 2017/02/12
+ * @see Parcelable
  */
-public class Movie {
+public class Movie implements Parcelable {
+    /**
+     * Interface that must be implemented and provided as a public CREATOR
+     * field that generates instances of your Parcelable class from a Parcel
+     *
+     * @since 1.0.0 2017/02/12
+     */
+    public final Parcelable.Creator<Movie> CREATOR = new Parcelable.Creator<Movie>() {
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public Movie createFromParcel(Parcel source) {
+            return new Movie(source);
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public Movie[] newArray(int i) {
+            return new Movie[i];
+        }
+    };
     private Integer id;
     private String originalTitle;
     private String originalLanguage;
@@ -34,7 +63,7 @@ public class Movie {
     private Boolean adult;
     private String overview;
     private String releaseDate;
-    private Integer[] genreIds;
+    private int[] genreIds;
     private String backdropPath;
     private Double popularity;
     private Integer voteCount;
@@ -51,6 +80,29 @@ public class Movie {
     }
 
     /**
+     * Constructor
+     *
+     * @param in the Parcel
+     * @since 1.0.0 2017/02/13
+     */
+    public Movie(Parcel in) {
+        id = in.readInt();
+        originalTitle = in.readString();
+        originalLanguage = in.readString();
+        title = in.readString();
+        posterPath = in.readString();
+        adult = (in.readInt() == 1);
+        overview = in.readString();
+        releaseDate = in.readString();
+        genreIds = in.createIntArray();
+        backdropPath = in.readString();
+        popularity = in.readDouble();
+        voteCount = in.readInt();
+        video = (in.readInt() == 1);
+        voteAverage = in.readDouble();
+    }
+
+    /**
      * Factory method, creates a new instance of {@link Movie}
      * using the provided {@link JSONObject}
      *
@@ -59,7 +111,7 @@ public class Movie {
      * @throws JSONException if no such mapping exists
      * @since 1.0.0 2017/02/12
      */
-    public static Movie newInstace(JSONObject data) throws JSONException {
+    public static Movie newInstance(JSONObject data) throws JSONException {
         Movie movie = new Movie();
         movie.setId(data.getInt("id"));
         movie.setOriginalTitle(data.getString("original_title"));
@@ -74,19 +126,46 @@ public class Movie {
         movie.setVoteCount(data.getInt("vote_count"));
         movie.setVideo(data.getBoolean("video"));
         movie.setVoteAverage(data.getDouble("vote_average"));
-        movie.setPosterPath(data.getString("poster_path"));
-        movie.setPosterPath(data.getString("poster_path"));
 
         JSONArray dataGenreIds = data.getJSONArray("genre_ids");
-        Integer[] genreIds = new Integer[dataGenreIds.length()];
+        int[] genreIds = new int[dataGenreIds.length()];
 
-        for(int i = 0; i< dataGenreIds.length(); i++) {
+        for (int i = 0; i < dataGenreIds.length(); i++) {
             genreIds[0] = dataGenreIds.getInt(i);
         }
 
         movie.setGenreIds(genreIds);
 
         return movie;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(getId());
+        dest.writeString(getOriginalTitle());
+        dest.writeString(getOriginalLanguage());
+        dest.writeString(getTitle());
+        dest.writeString(getPosterPath());
+        dest.writeInt(getAdult() ? 1 : 0);
+        dest.writeString(getOverview());
+        dest.writeString(getReleaseDate());
+        dest.writeString(getBackdropPath());
+        dest.writeDouble(getPopularity());
+        dest.writeInt(getVoteCount());
+        dest.writeInt(getVideo() ? 1 : 0);
+        dest.writeDouble(getVoteAverage());
+        dest.writeIntArray(getGenreIds());
     }
 
     public Double getVoteAverage() {
@@ -161,11 +240,11 @@ public class Movie {
         this.releaseDate = releaseDate;
     }
 
-    public Integer[] getGenreIds() {
+    public int[] getGenreIds() {
         return genreIds;
     }
 
-    public void setGenreIds(Integer[] genreIds) {
+    public void setGenreIds(int[] genreIds) {
         this.genreIds = genreIds;
     }
 
