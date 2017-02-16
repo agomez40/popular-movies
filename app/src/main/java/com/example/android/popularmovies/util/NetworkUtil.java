@@ -22,6 +22,11 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.util.Log;
 
+import com.squareup.okhttp.CacheControl;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.Response;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -29,10 +34,6 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
-
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 
 /**
  * Basic network utils
@@ -50,10 +51,7 @@ public class NetworkUtil {
      * https://developers.themoviedb.org/3/movies/get-popular-movies
      */
     public static final String GET_POPULAR_MOVIES = "popular";
-    /**
-     * https://developers.themoviedb.org/3/movies/get-latest-movie
-     */
-    public static final String GET_LATEST_MOVIES = "now_playing";
+
     /**
      * The movie database base API URI
      */
@@ -116,8 +114,10 @@ public class NetworkUtil {
         Log.d(NetworkUtil.class.getSimpleName(), "GET URL= " + url.toString());
 
         OkHttpClient client = new OkHttpClient();
+
         Request request = new Request.Builder()
                 .url(url)
+                .cacheControl(CacheControl.FORCE_NETWORK)
                 .build();
 
         Response response = client.newCall(request).execute();
@@ -127,8 +127,6 @@ public class NetworkUtil {
         if (response.code() == 200) {
             jsonResponse = new JSONObject(response.body().string());
         }
-        // Close the stream, or it will leak memory
-        response.close();
 
         return jsonResponse;
     }

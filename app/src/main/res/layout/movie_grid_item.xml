@@ -24,6 +24,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:adjustViewBounds="true"
-        android:contentDescription="@string/content.description.moviePoster"
-        android:scaleType="fitXY" />
+        android:contentDescription="@string/content.description.moviePoster" />
+
 </com.example.android.popularmovies.util.PosterView>

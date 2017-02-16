@@ -19,9 +19,14 @@ package com.example.android.popularmovies.ui.detail;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.example.android.popularmovies.R;
 import com.example.android.popularmovies.model.Movie;
+import com.squareup.picasso.Picasso;
+
+import java.util.Locale;
 
 /**
  * @author Luis Alberto Gómez Rodríguez (alberto.gomez@cargomovil.com)
@@ -31,10 +36,11 @@ import com.example.android.popularmovies.model.Movie;
  */
 public class MovieDetailActivity extends AppCompatActivity {
 
-    /**
-     * The current movie
-     */
-    private Movie mMovie;
+    private ImageView mMoviePoster;
+    private TextView mReleaseDate;
+    private TextView mVoteAverage;
+    private TextView mSynopsis;
+    private TextView mTitle;
 
     /**
      * {@inheritDoc}
@@ -52,11 +58,38 @@ public class MovieDetailActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
-        // TODO Get the extras and set the movie title
-        if (!getIntent().getExtras().isEmpty()) {
-            mMovie = getIntent().getParcelableExtra("movie");
+        mMoviePoster = (ImageView) findViewById(R.id.iv_movie_poster);
+        mReleaseDate = (TextView) findViewById(R.id.tv_release_date);
+        mVoteAverage = (TextView) findViewById(R.id.tv_vote_average);
+        mSynopsis = (TextView) findViewById(R.id.tv_synopsis);
+        mTitle = (TextView) findViewById(R.id.tv_title);
 
-            getSupportActionBar().setTitle(mMovie.getTitle());
+        // Get the extras and set the movie title
+        if (!getIntent().getExtras().isEmpty()) {
+            Movie movie = getIntent().getParcelableExtra("movie");
+            initUI(movie);
         }
+    }
+
+    /**
+     * Init the UI
+     *
+     * @param movie the movie
+     * @since 1.0.0 2017/02/14
+     */
+    private void initUI(Movie movie) {
+        // Use Picasso to load the image into the view
+        Picasso.with(mMoviePoster.getContext())
+                .load("http://image.tmdb.org/t/p/w185/" + movie.getPosterPath())
+                .into(mMoviePoster);
+
+        mTitle.setText(movie.getTitle());
+
+        // Format the release date to get only the year
+        mReleaseDate.setText(movie.getReleaseDate().substring(0, 4));
+
+        // Format the votes to show avg/10
+        mVoteAverage.setText(String.format(Locale.getDefault(), "%.1f", movie.getVoteAverage()).concat("/10"));
+        mSynopsis.setText(movie.getOverview());
     }
 }

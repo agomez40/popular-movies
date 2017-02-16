@@ -21,7 +21,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.StringRes;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -57,6 +56,7 @@ import java.util.Map;
  */
 public class MainActivity extends AppCompatActivity implements MoviesAdapter.MovieItemClickListener,
         ErrorView.ErrorViewListener {
+
     /**
      * Grid number of columns
      */
@@ -125,21 +125,27 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         mGridViewMovies = (RecyclerView) findViewById(R.id.gv_movies);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this, NUM_COLUMNS);
         gridLayoutManager.setOrientation(GridLayoutManager.VERTICAL);
-        mGridViewMovies.setItemAnimator(new DefaultItemAnimator());
         mGridViewMovies.setLayoutManager(gridLayoutManager);
         mGridViewMovies.setHasFixedSize(true);
+        mGridViewMovies.setItemViewCacheSize(20);
+        mGridViewMovies.setDrawingCacheEnabled(true);
+        mGridViewMovies.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
 
         mErrorView = (ErrorView) findViewById(R.id.ev_popular_movies);
         mErrorView.setErrorViewListener(this);
 
         mProgressBar = (ProgressBar) findViewById(R.id.pb_loading_movies);
 
-        // Restore the app state
-        initUI(savedInstanceState);
-
         // The adapter instance
         mMoviesAdapter = new MoviesAdapter(this);
+        mMoviesAdapter.setMovies(new ArrayList<Movie>(0));
         mGridViewMovies.setAdapter(mMoviesAdapter);
+
+        mErrorView.setVisibility(View.GONE);
+        mProgressBar.setVisibility(View.GONE);
+        mGridViewMovies.setVisibility(View.VISIBLE);
+
+        sortByMostPopular();
     }
 
     /**
@@ -224,39 +230,6 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         Intent intent = new Intent(this, MovieDetailActivity.class);
         intent.putExtra("movie", movie);
         startActivity(intent);
-    }
-
-    /**
-     * Init the main UI
-     *
-     * @param savedInstanceState the saved instance state
-     * @since 1.0.0 2017/02/12
-     */
-    private void initUI(Bundle savedInstanceState) {
-        // The UI initial state
-        mErrorView.setVisibility(View.GONE);
-        mProgressBar.setVisibility(View.GONE);
-        mGridViewMovies.setVisibility(View.VISIBLE);
-
-        if (savedInstanceState != null && !savedInstanceState.isEmpty()) {
-            /*
-             * TODO Restore app state when device rotates from the savedInstanceState using the parcelable
-             * instead of calling again the API
-             */
-            switch (savedInstanceState.getInt("mSort")) {
-                case 1:
-                    sortByMostPopular();
-                    break;
-                case 2:
-                    sortByTopRated();
-                    break;
-                default:
-                    sortByMostPopular();
-                    break;
-            }
-        } else {
-            sortByMostPopular();
-        }
     }
 
     /**
@@ -415,6 +388,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
             if (movies != null && !movies.isEmpty()) {
                 // fill the grid adapter and display the movies
                 mMoviesAdapter.setMovies(movies);
+                mMoviesAdapter.notifyDataSetChanged();
                 showProgressIndicator(false);
             } else {
                 // show error view with no data :(

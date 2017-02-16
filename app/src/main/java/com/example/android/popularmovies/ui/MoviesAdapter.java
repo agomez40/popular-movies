@@ -16,6 +16,7 @@
 
 package com.example.android.popularmovies.ui;
 
+import android.content.Context;
 import android.os.Parcelable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -25,6 +26,7 @@ import android.widget.ImageView;
 
 import com.example.android.popularmovies.R;
 import com.example.android.popularmovies.model.Movie;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -38,21 +40,15 @@ import java.util.List;
  * @since 1.0.0 2017/02/13
  */
 public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesViewHolder> {
-
-    /**
-     * Class tag for logging
-     */
     private static final String TAG = MoviesAdapter.class.getSimpleName();
-
+    /**
+     * Click listener
+     */
+    private final MovieItemClickListener mListener;
     /**
      * The data collection for the adapter
      */
     private List<Movie> mMovies;
-
-    /**
-     * Click listener
-     */
-    private MovieItemClickListener mListener;
 
     /**
      * Constructor
@@ -97,7 +93,13 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesView
      */
     @Override
     public void onBindViewHolder(MoviesViewHolder holder, int position) {
-        holder.bind(mMovies.get(position));
+        Movie movie = mMovies.get(position);
+        // Use Picasso to load the image into the view
+        Context context = holder.moviePoster.getContext();
+
+        Picasso.with(context).load("http://image.tmdb.org/t/p/w185/" + movie.getPosterPath())
+                .networkPolicy(NetworkPolicy.NO_CACHE)
+                .into(holder.moviePoster);
     }
 
     /**
@@ -124,9 +126,9 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesView
     }
 
     /**
-     * Sets the data to display
+     * Sets the data collection
      *
-     * @param movies the collection of movies
+     * @param movies the movies to set
      * @since 1.0.0 2017/02/13
      */
     public void setMovies(List<Movie> movies) {
@@ -189,21 +191,6 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesView
             if (mListener != null) {
                 mListener.onMovieClick(mMovies.get(clickedPosition));
             }
-        }
-
-        /**
-         * Binds the {@link Movie} metadata to display the appropriate information within a list or
-         * grid item
-         *
-         * @param movie the movie metadata
-         * @since 1.0.0 2017/02/13
-         */
-        void bind(Movie movie) {
-            // Use Picasso to load the image into the view
-            Picasso.with(moviePoster.getContext())
-                    .load("http://image.tmdb.org/t/p/w185/" + movie.getPosterPath())
-                    .placeholder(R.drawable.ic_movie_placeholder)
-                    .into(moviePoster);
         }
     }
 }

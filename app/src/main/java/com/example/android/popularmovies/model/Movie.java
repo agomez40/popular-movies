@@ -160,12 +160,12 @@ public class Movie implements Parcelable {
         dest.writeInt(getAdult() ? 1 : 0);
         dest.writeString(getOverview());
         dest.writeString(getReleaseDate());
+        dest.writeIntArray(getGenreIds());
         dest.writeString(getBackdropPath());
         dest.writeDouble(getPopularity());
         dest.writeInt(getVoteCount());
         dest.writeInt(getVideo() ? 1 : 0);
         dest.writeDouble(getVoteAverage());
-        dest.writeIntArray(getGenreIds());
     }
 
     public Double getVoteAverage() {
