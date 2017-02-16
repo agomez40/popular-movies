@@ -22,8 +22,7 @@
     <string name="title_activity_movie_detail">Movie Detail</string>
 
     <!-- TODO The Movie DB API keys, change the default values using your own API Keys -->
-    <string name="movie_db_api_v3_key" translatable="false">YOUR_V3_API_KEY</string>
-    <string name="movie_db_api_v4_key" translatable="false">YOUR_V4_API_KEY</string>
+    <string name="movie_db_api_v3_key" translatable="false">API KEY</string>
 
     <!-- content description for image views -->
     <string name="content.description.errorImage">Error image view</string>
@@ -34,10 +33,8 @@
     <string name="action.menu.orderByMostPopular">Most Popular</string>
     <string name="action.menu.orderByTopRated">Top Rated</string>
 
-    <!-- Labels -->
-    <string name="label.trailers">Trailers</string>
-
     <!-- Error messages -->
     <string name="error_no_network">Oops! Could not load movies, please check your internet connection.</string>
     <string name="error_no_results">Data not available.</string>
+    <string name="content.description.movieDb">The Movie DBB</string>
 </resources>
