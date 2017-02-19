@@ -22,7 +22,7 @@
     <string name="title_activity_movie_detail">Movie Detail</string>
 
     <!-- TODO The Movie DB API keys, change the default values using your own API Keys -->
-    <string name="movie_db_api_v3_key" translatable="false">cc218f60253550604b1d89432ca8747e</string>
+    <string name="movie_db_api_v3_key" translatable="false">API KEY V3</string>
 
     <!-- content description for image views -->
     <string name="content.description.errorImage">Error image view</string>
