@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.android.popularmovies.view;
+package com.example.android.popularmovies.ui.core;
 
 import android.animation.LayoutTransition;
 import android.content.Context;
@@ -98,7 +98,6 @@ public class ErrorView extends LinearLayout {
         // Inflate the layout
         LayoutInflater inflater = LayoutInflater.from(context);
         inflater.inflate(R.layout.layout_error_view, this, true);
-        setOrientation(VERTICAL);
         setGravity(Gravity.CENTER);
 
         // Allow for animations
@@ -177,7 +176,7 @@ public class ErrorView extends LinearLayout {
      *
      * @since 1.0.0 2017/02/10
      */
-    interface ErrorViewListener {
+    public interface ErrorViewListener {
         /**
          * Button click listener
          *

@@ -19,4 +19,7 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="padding_half">8dp</dimen>
+
+    <dimen name="poster_width">780px</dimen>
+    <dimen name="poster_height">1170px</dimen>
 </resources>
