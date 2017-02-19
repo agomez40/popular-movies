@@ -43,20 +43,6 @@ import java.util.Map;
  * @since 1.0.0 2017/02/09
  */
 public class NetworkUtil {
-    /**
-     * https://developers.themoviedb.org/3/movies/get-top-rated-movies
-     */
-    public static final String GET_TOP_RATED_MOVIES = "top_rated";
-    /**
-     * https://developers.themoviedb.org/3/movies/get-popular-movies
-     */
-    public static final String GET_POPULAR_MOVIES = "popular";
-
-    /**
-     * The movie database base API URI
-     */
-    private static final String MOVIE_DATABASE_BASE_URL =
-            "https://api.themoviedb.org/3/movie/";
 
     /**
      * Constructor
@@ -83,7 +69,7 @@ public class NetworkUtil {
      * @return The URL to use to query the Movie Database API.
      */
     public static URL buildUrl(String path, Map<String, String> params) throws MalformedURLException {
-        Uri.Builder builder = Uri.parse(MOVIE_DATABASE_BASE_URL).buildUpon();
+        Uri.Builder builder = Uri.parse(TheMovieDbUtil.MOVIE_DATABASE_BASE_URL).buildUpon();
         builder.appendPath(path);
 
         if (params != null && !params.isEmpty()) {

@@ -49,7 +49,7 @@
         android:layout_centerInParent="true" />
 
     <!-- Custom error view to show error messages like no network or results found -->
-    <com.example.android.popularmovies.util.ErrorView
+    <com.example.android.popularmovies.ui.core.ErrorView
         android:id="@+id/ev_popular_movies"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

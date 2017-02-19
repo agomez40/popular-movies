@@ -27,8 +27,8 @@ import org.json.JSONObject;
  * Simple POJO to represent a Movie entity
  *
  * @version 1.0.0 2016/02/12
- * @since 1.0.0 2017/02/12
  * @see Parcelable
+ * @since 1.0.0 2017/02/12
  */
 public class Movie implements Parcelable {
     /**

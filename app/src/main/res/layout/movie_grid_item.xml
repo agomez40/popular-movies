@@ -13,17 +13,9 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
-<com.example.android.popularmovies.util.PosterView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
+<ImageView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/iv_movie_poster"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
-
-    <ImageView
-        android:id="@+id/iv_movie_poster"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:adjustViewBounds="true"
-        android:contentDescription="@string/content.description.moviePoster" />
-
-</com.example.android.popularmovies.util.PosterView>
+    android:adjustViewBounds="true"
+    android:contentDescription="@string/content.description.moviePoster" />
