@@ -14,17 +14,15 @@
  * limitations under the License.
  */
 
-package com.example.android.popularmovies.ui;
+package com.example.android.popularmovies.ui.movies;
 
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.StringRes;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -33,22 +31,17 @@ import android.widget.ProgressBar;
 
 import com.example.android.popularmovies.R;
 import com.example.android.popularmovies.model.Movie;
+import com.example.android.popularmovies.model.MovieCollection;
+import com.example.android.popularmovies.ui.core.AsyncTaskCompleteListener;
 import com.example.android.popularmovies.ui.core.ErrorView;
 import com.example.android.popularmovies.ui.detail.MovieDetailActivity;
 import com.example.android.popularmovies.util.NetworkUtil;
 import com.example.android.popularmovies.util.TheMovieDbUtil;
 import com.example.android.popularmovies.util.ViewUtil;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import butterknife.BindView;
@@ -60,8 +53,9 @@ import butterknife.ButterKnife;
  * @see AppCompatActivity
  * @since 1.0.0 2017/02/09
  */
-public class MainActivity extends AppCompatActivity implements MoviesAdapter.MovieItemClickListener,
-        ErrorView.ErrorViewListener {
+public class MoviesActivity extends AppCompatActivity implements MoviesAdapter.MovieItemClickListener,
+        ErrorView.ErrorViewListener,
+        AsyncTaskCompleteListener<MovieCollection> {
 
     // ButterKnife bindings
     @BindView(R.id.toolbar)
@@ -86,19 +80,14 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
     private short mSort = 0;
 
     /**
-     * The current page of the last query to the API
-     */
-    private int mPage = TheMovieDbUtil.DEFAULT_PAGE;
-
-    /**
-     * The total results
-     */
-    private int mPages = 0;
-
-    /**
      * The GridView adapter
      */
     private MoviesAdapter mMoviesAdapter;
+
+    /**
+     * The current movie collection to display
+     */
+    private MovieCollection mMovieCollection;
 
     /**
      * {@inheritDoc}
@@ -137,12 +126,11 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
 
         if (savedInstanceState != null) {
             mSort = savedInstanceState.getShort("sort");
-            mPage = savedInstanceState.getInt("page");
-            mPages = savedInstanceState.getInt("pages");
 
-            List<Movie> parcelables = savedInstanceState.getParcelableArrayList("movies");
-            if (parcelables != null) {
-                mMoviesAdapter.setMovies(parcelables);
+            mMovieCollection = savedInstanceState.getParcelable("movieCollection");
+
+            if (mMovieCollection != null) {
+                mMoviesAdapter.setMovies(mMovieCollection.getMovies());
             }
         } else {
             // Fetch the movies from the network
@@ -159,12 +147,8 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         // This bundle will be passed to onCreate if the process is
         // killed and restarted.
         savedInstanceState.putShort("sort", mSort);
-        savedInstanceState.putInt("page", mPage);
-        savedInstanceState.putInt("pages", mPages);
+        savedInstanceState.putParcelable("movieCollection", mMovieCollection);
 
-        if (mMoviesAdapter.getItems() != null) {
-            savedInstanceState.putParcelableArrayList("movies", mMoviesAdapter.getItems());
-        }
         super.onSaveInstanceState(savedInstanceState);
     }
 
@@ -253,6 +237,34 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onTaskRunning() {
+        showProgressIndicator(true);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onTaskError(@StringRes int stringId) {
+        showError(stringId);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onTaskComplete(MovieCollection movieCollection) {
+        // fill the grid adapter and display the movies
+        mMovieCollection = movieCollection;
+        mMoviesAdapter.setMovies(mMovieCollection.getMovies());
+        mMoviesAdapter.notifyDataSetChanged();
+        showProgressIndicator(false);
+    }
+
+    /**
      * Shows or hides the progress indicator
      *
      * @param show {@literal true} to show the progress indicatior, otherwise {@literal false}
@@ -296,8 +308,8 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
                 mMovieTask = null;
             }
 
-            // Create the async task
-            mMovieTask = new MovieDatabaseQueryTask();
+            // Create the async task passing the context and the AsyncTaskListener
+            mMovieTask = new MovieDatabaseQueryTask(MoviesActivity.this, this);
 
             // Store the current sort option
             mSort = sort;
@@ -318,83 +330,6 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         } catch (MalformedURLException e) {
             e.printStackTrace();
             showError(R.string.error_no_results);
-        }
-    }
-
-    /**
-     * @author Luis Alberto Gómez Rodríguez (lagomez40@gmail.com)
-     * @version 1.0.0 2017/02/12
-     * @see AsyncTask
-     * @since 1.0.0 2017/02/12
-     */
-    private class MovieDatabaseQueryTask extends AsyncTask<URL, Void, List<Movie>> {
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-
-            // Check network connection
-            if (NetworkUtil.isNetworkConnected(MainActivity.this)) {
-                // Hide the GridView and show the progress bar
-                showProgressIndicator(true);
-            } else {
-                // cancel itself
-                cancel(true);
-                showError(R.string.error_no_network);
-            }
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        protected List<Movie> doInBackground(URL... params) {
-            try {
-                JSONObject response = NetworkUtil.queryMovieDatabaseAPI(params[0]);
-
-                // Get the current page
-                mPage = response.getInt("page");
-
-                // The total pages
-                mPages = response.getInt("total_pages");
-
-                Log.d(MovieDatabaseQueryTask.class.getSimpleName(), "Total results: " + response.getInt("total_results"));
-
-                // The movies!
-                JSONArray results = response.getJSONArray("results");
-
-                // Parse the movies into our model
-                List<Movie> movies = new ArrayList<>(0);
-
-                for (int i = 0; i < results.length(); i++) {
-                    movies.add(Movie.newInstance(results.getJSONObject(i)));
-                }
-
-                return movies;
-            } catch (IOException | JSONException e) {
-                e.printStackTrace();
-                return null;
-            }
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        protected void onPostExecute(List<Movie> movies) {
-            super.onPostExecute(movies);
-
-            if (movies != null && !movies.isEmpty()) {
-                // fill the grid adapter and display the movies
-                mMoviesAdapter.setMovies(movies);
-                mMoviesAdapter.notifyDataSetChanged();
-                showProgressIndicator(false);
-            } else {
-                // show error view with no data :(
-                showError(R.string.error_no_results);
-            }
         }
     }
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.android.popularmovies.ui;
+package com.example.android.popularmovies.ui.movies;
 
 import android.content.Context;
 import android.os.Parcelable;
@@ -27,7 +27,6 @@ import android.widget.ImageView;
 
 import com.example.android.popularmovies.R;
 import com.example.android.popularmovies.model.Movie;
-import com.example.android.popularmovies.util.ViewUtil;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -40,12 +39,12 @@ import java.util.List;
  * @see Movie
  * @since 1.0.0 2017/02/13
  */
-public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesViewHolder> {
+class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesViewHolder> {
     /**
      * Class Logging tag
      */
     private static final String TAG = MoviesAdapter.class.getSimpleName();
-
+    private static final double ASPECT_RATIO = 185.0 / 278.0;
     /**
      * Click listener
      */
@@ -61,7 +60,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesView
      * @param listener     The on click listener
      * @since 1.0.0 2017/02/13
      */
-    public MoviesAdapter(MovieItemClickListener listener) {
+    MoviesAdapter(MovieItemClickListener listener) {
         this.mListener = listener;
         Log.d(TAG, "Created.");
     }
@@ -84,9 +83,8 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesView
 
         View view = inflater.inflate(R.layout.movie_grid_item, viewGroup, false);
         RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) view.getLayoutParams();
-        params.height = (int) ViewUtil.pxToDp(view.getResources().getDimension(R.dimen.poster_height));
+        params.height = (int) (view.getResources().getDimension(R.dimen.poster_height));
 
-        Log.d(TAG, "View inflated.");
         return new MoviesViewHolder(view);
     }
 
@@ -107,7 +105,6 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesView
         // Use Picasso to load the image into the view
         Context context = holder.moviePoster.getContext();
 
-        // TODO load from the dimens
         Picasso.with(context).load("http://image.tmdb.org/t/p/w185/" + movie.getPosterPath())
                 .fit()
                 .into(holder.moviePoster);
@@ -141,7 +138,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesView
      * @param movies the movies to set
      * @since 1.0.0 2017/02/13
      */
-    public void setMovies(List<Movie> movies) {
+    void setMovies(List<Movie> movies) {
         this.mMovies = movies;
         notifyDataSetChanged();
     }

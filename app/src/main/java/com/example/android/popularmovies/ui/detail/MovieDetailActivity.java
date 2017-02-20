@@ -85,6 +85,8 @@ public class MovieDetailActivity extends AppCompatActivity {
         // Use Picasso to load the image into the view
         Picasso.with(mIvMoviePoster.getContext())
                 .load("http://image.tmdb.org/t/p/w185/" + movie.getPosterPath())
+                .placeholder(R.drawable.vector_movie_placeholder)
+                .error(R.drawable.vector_movie_error)
                 .into(mIvMoviePoster);
 
         mTvTitle.setText(movie.getTitle());

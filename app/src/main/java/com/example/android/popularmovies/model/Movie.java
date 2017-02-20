@@ -31,6 +31,7 @@ import org.json.JSONObject;
  * @since 1.0.0 2017/02/12
  */
 public class Movie implements Parcelable {
+
     /**
      * Interface that must be implemented and provided as a public CREATOR
      * field that generates instances of your Parcelable class from a Parcel
