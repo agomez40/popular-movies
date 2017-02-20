@@ -51,6 +51,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 /**
  * @author Luis Alberto Gómez Rodríguez (lagomez40@gmail.com)
  * @version 1.0.0 2017/02/09
@@ -60,20 +63,15 @@ import java.util.Map;
 public class MainActivity extends AppCompatActivity implements MoviesAdapter.MovieItemClickListener,
         ErrorView.ErrorViewListener {
 
-    /**
-     * The GridView to show movie posters
-     */
-    private RecyclerView mGridViewMovies;
-
-    /**
-     * The custom error view
-     */
-    private ErrorView mErrorView;
-
-    /**
-     * The progress indicator
-     */
-    private ProgressBar mProgressBar;
+    // ButterKnife bindings
+    @BindView(R.id.toolbar)
+    Toolbar mToolbar;
+    @BindView(R.id.gv_movies)
+    RecyclerView mRvMovies;
+    @BindView(R.id.pb_loading_movies)
+    ProgressBar mPbLoadingMovies;
+    @BindView(R.id.ev_popular_movies)
+    ErrorView mEvPopularMovies;
 
     /**
      * The AsyncTask for network IO
@@ -109,40 +107,33 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-
-        setSupportActionBar(toolbar);
+        setSupportActionBar(mToolbar);
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle(R.string.app_name);
         }
+        mRvMovies.setHasFixedSize(true);
+        mRvMovies.setItemViewCacheSize(20);
+        mRvMovies.setDrawingCacheEnabled(true);
+        mRvMovies.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
 
-        // Get the movies grid view
-        mGridViewMovies = (RecyclerView) findViewById(R.id.gv_movies);
-        mGridViewMovies.setHasFixedSize(true);
-        mGridViewMovies.setItemViewCacheSize(20);
-        mGridViewMovies.setDrawingCacheEnabled(true);
-        mGridViewMovies.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
+        mEvPopularMovies.setErrorViewListener(this);
 
-        mErrorView = (ErrorView) findViewById(R.id.ev_popular_movies);
-        mErrorView.setErrorViewListener(this);
-
-        mProgressBar = (ProgressBar) findViewById(R.id.pb_loading_movies);
-
-        mErrorView.setVisibility(View.GONE);
-        mProgressBar.setVisibility(View.GONE);
-        mGridViewMovies.setVisibility(View.VISIBLE);
+        // Initial view state
+        mEvPopularMovies.setVisibility(View.GONE);
+        mPbLoadingMovies.setVisibility(View.GONE);
+        mRvMovies.setVisibility(View.VISIBLE);
 
         // Config the grid
         RecyclerView.LayoutManager layoutManager = ViewUtil.configGridLayout(this);
-        mGridViewMovies.setLayoutManager(layoutManager);
-
+        mRvMovies.setLayoutManager(layoutManager);
 
         // The initial adapter, should get data from the stored state on future updates
         mMoviesAdapter = new MoviesAdapter(this);
         mMoviesAdapter.setMovies(new ArrayList<Movie>(0));
-        mGridViewMovies.setAdapter(mMoviesAdapter);
+        mRvMovies.setAdapter(mMoviesAdapter);
 
         if (savedInstanceState != null) {
             mSort = savedInstanceState.getShort("sort");
@@ -215,11 +206,11 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         super.onConfigurationChanged(newConfig);
         // Config the grid
         RecyclerView.LayoutManager layoutManager = ViewUtil.configGridLayout(this);
-        mGridViewMovies.setLayoutManager(layoutManager);
+        mRvMovies.setLayoutManager(layoutManager);
 
         mMoviesAdapter = new MoviesAdapter(this);
         mMoviesAdapter.setMovies(new ArrayList<Movie>(0));
-        mGridViewMovies.setAdapter(mMoviesAdapter);
+        mRvMovies.setAdapter(mMoviesAdapter);
 
         // XXX should get this from the bundle
         getMovies(mSort);
@@ -245,7 +236,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
     @Override
     public void onRetryClick() {
         // retry the action on error, fetch the movies
-        mErrorView.setVisibility(View.GONE);
+        mEvPopularMovies.setVisibility(View.GONE);
 
         getMovies(mSort);
     }
@@ -270,12 +261,12 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
     private void showProgressIndicator(boolean show) {
         if (show) {
             // Hide the error view and the grid view
-            mGridViewMovies.setVisibility(View.GONE);
-            mErrorView.setVisibility(View.GONE);
-            mProgressBar.setVisibility(View.VISIBLE);
+            mRvMovies.setVisibility(View.GONE);
+            mEvPopularMovies.setVisibility(View.GONE);
+            mPbLoadingMovies.setVisibility(View.VISIBLE);
         } else {
-            mGridViewMovies.setVisibility(View.VISIBLE);
-            mProgressBar.setVisibility(View.GONE);
+            mRvMovies.setVisibility(View.VISIBLE);
+            mPbLoadingMovies.setVisibility(View.GONE);
         }
     }
 
@@ -286,11 +277,11 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
      * @since 1.0.0 2017/02/13
      */
     private void showError(@StringRes int stringId) {
-        mGridViewMovies.setVisibility(View.GONE);
-        mProgressBar.setVisibility(View.GONE);
+        mRvMovies.setVisibility(View.GONE);
+        mPbLoadingMovies.setVisibility(View.GONE);
 
-        mErrorView.setErrorMessage(getString(stringId));
-        mErrorView.setVisibility(View.VISIBLE);
+        mEvPopularMovies.setErrorMessage(getString(stringId));
+        mEvPopularMovies.setVisibility(View.VISIBLE);
     }
 
     /**

@@ -28,19 +28,30 @@ import com.squareup.picasso.Picasso;
 
 import java.util.Locale;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 /**
  * @author Luis Alberto Gómez Rodríguez (alberto.gomez@cargomovil.com)
- * @version 1.0.0 2017/02/14
+ * @version 1.0.1 2017/02/19
  * @see AppCompatActivity
  * @since 1.0.0 2017/02/14
  */
 public class MovieDetailActivity extends AppCompatActivity {
 
-    private ImageView mMoviePoster;
-    private TextView mReleaseDate;
-    private TextView mVoteAverage;
-    private TextView mSynopsis;
-    private TextView mTitle;
+    // ButterKnife view bindings
+    @BindView(R.id.toolbar)
+    Toolbar mToolbar;
+    @BindView(R.id.tv_title)
+    TextView mTvTitle;
+    @BindView(R.id.iv_movie_poster)
+    ImageView mIvMoviePoster;
+    @BindView(R.id.tv_release_date)
+    TextView mTvReleaseDate;
+    @BindView(R.id.tv_vote_average)
+    TextView mTvVoteAverage;
+    @BindView(R.id.tv_synopsis)
+    TextView mTvSynopsis;
 
     /**
      * {@inheritDoc}
@@ -49,20 +60,13 @@ public class MovieDetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_detail);
+        ButterKnife.bind(this);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-
-        setSupportActionBar(toolbar);
+        setSupportActionBar(mToolbar);
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
-
-        mMoviePoster = (ImageView) findViewById(R.id.iv_movie_poster);
-        mReleaseDate = (TextView) findViewById(R.id.tv_release_date);
-        mVoteAverage = (TextView) findViewById(R.id.tv_vote_average);
-        mSynopsis = (TextView) findViewById(R.id.tv_synopsis);
-        mTitle = (TextView) findViewById(R.id.tv_title);
 
         // Get the extras and set the movie title
         if (!getIntent().getExtras().isEmpty()) {
@@ -79,17 +83,17 @@ public class MovieDetailActivity extends AppCompatActivity {
      */
     private void initUI(Movie movie) {
         // Use Picasso to load the image into the view
-        Picasso.with(mMoviePoster.getContext())
+        Picasso.with(mIvMoviePoster.getContext())
                 .load("http://image.tmdb.org/t/p/w185/" + movie.getPosterPath())
-                .into(mMoviePoster);
+                .into(mIvMoviePoster);
 
-        mTitle.setText(movie.getTitle());
+        mTvTitle.setText(movie.getTitle());
 
         // Format the release date to get only the year
-        mReleaseDate.setText(movie.getReleaseDate().substring(0, 4));
+        mTvReleaseDate.setText(movie.getReleaseDate().substring(0, 4));
 
         // Format the votes to show avg/10
-        mVoteAverage.setText(String.format(Locale.getDefault(), "%.1f", movie.getVoteAverage()).concat("/10"));
-        mSynopsis.setText(movie.getOverview());
+        mTvVoteAverage.setText(String.format(Locale.getDefault(), "%.1f", movie.getVoteAverage()).concat("/10"));
+        mTvSynopsis.setText(movie.getOverview());
     }
 }
