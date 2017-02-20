@@ -175,7 +175,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesView
         /**
          * The movie poster image view
          */
-        private ImageView moviePoster;
+        private final ImageView moviePoster;
 
         /**
          * Constructor

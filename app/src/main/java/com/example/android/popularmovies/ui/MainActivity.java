@@ -159,11 +159,6 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         }
     }
 
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-    }
-
     /**
      * {@inheritDoc}
      */

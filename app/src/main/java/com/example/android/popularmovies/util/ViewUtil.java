@@ -71,17 +71,6 @@ public final class ViewUtil {
         return size;
     }
 
-    /**
-     * Gets the current device orientation
-     *
-     * @param context The application context
-     * @return the device orientation
-     * @since 1.0.0 2017/02/18
-     */
-    private static int getDeviceOrientation(Context context) {
-        return context.getResources().getConfiguration().orientation;
-    }
-
     public static RecyclerView.LayoutManager configGridLayout(Context context) {
         // Calculate the number of columns to display based on the screen size and the poster size
         int posterWidth = Math.round(pxToDp(context.getResources().getDimension(R.dimen.poster_width)));
