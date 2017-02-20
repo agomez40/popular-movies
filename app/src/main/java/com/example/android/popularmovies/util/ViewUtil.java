@@ -16,7 +16,6 @@
 package com.example.android.popularmovies.util;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Point;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.GridLayoutManager;
@@ -28,33 +27,11 @@ import com.example.android.popularmovies.R;
 
 /**
  * @author Luis Alberto Gómez Rodríguez (lagomez40@gmail.com)
- * @version 1.0.0 2017/02/09
- * @since 1.0.0 2017/02/09
+ * @version 1.0.1 2017/02/19
+ * @since 1.0.1 2017/02/19
  */
 public final class ViewUtil {
-    /**
-     * Converts the given pixels to dpi units
-     *
-     * @param px The pixels unit
-     * @return The dpi unit
-     * @since 1.0.0 2017/02/18
-     */
-    public static float pxToDp(float px) {
-        float densityDpi = Resources.getSystem().getDisplayMetrics().densityDpi;
-        return px / (densityDpi / 160f);
-    }
-
-    /**
-     * Converts the given dpi unit to pixels
-     *
-     * @param dp The density unit
-     * @return The pixels
-     * @since 1.0.0 2017/02/18
-     */
-    public static int dpToPx(int dp) {
-        float density = Resources.getSystem().getDisplayMetrics().density;
-        return Math.round(dp * density);
-    }
+    private static final int DEFAULT_SPAN = 2;
 
     /**
      * Gets the {@link Display} of the device
@@ -73,14 +50,13 @@ public final class ViewUtil {
 
     public static RecyclerView.LayoutManager configGridLayout(Context context) {
         // Calculate the number of columns to display based on the screen size and the poster size
-        int posterWidth = Math.round(pxToDp(context.getResources().getDimension(R.dimen.poster_width)));
+        int posterWidth = (int) context.getResources().getDimension(R.dimen.poster_width);
 
         // Calculate the optimal columns
         int columns = ViewUtil.getDisplaySize(context).x / posterWidth;
 
-        // Check of column is even or odd, if its odd convert it to even
-        if (columns % 2 != 0) {
-            columns = columns - 1;
+        if (columns <= 1) {
+            columns = DEFAULT_SPAN;
         }
 
         return new GridLayoutManager(context, columns);
