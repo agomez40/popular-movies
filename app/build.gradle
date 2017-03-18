@@ -38,6 +38,13 @@ android {
 
 dependencies {
     final SUPPORT_LIBRARY_VERSION = '25.3.0'
+    final CONSTRAINT_LAYOUT_VERSION = '1.0.2';
+    final BUTTER_KNIFE_VERSION = '8.5.1'
+    final RETROFIT_VERSION = '2.1.0'
+    final RX_ANDROID = '2.0.1'
+    final AUTO_VALUE_VERSION = '1.4';
+    final AUTO_VALUE_GSON_VERSION = '0.4.6'
+    final DAGGER_VERSION = '2.9';
 
     compile fileTree(dir: 'libs', include: ['*.jar'])
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
@@ -48,6 +55,8 @@ dependencies {
     // Android support libraries
     compile "com.android.support:appcompat-v7:$SUPPORT_LIBRARY_VERSION"
     compile "com.android.support:recyclerview-v7:$SUPPORT_LIBRARY_VERSION"
+    compile "com.android.support:support-annotations:$SUPPORT_LIBRARY_VERSION"
+    compile "com.android.support.constraint:constraint-layout:$CONSTRAINT_LAYOUT_VERSION"
 
     //Material Support Design
     compile "com.android.support:design:$SUPPORT_LIBRARY_VERSION"
@@ -55,10 +64,39 @@ dependencies {
     // Picasso
     compile 'com.squareup.picasso:picasso:2.5.2'
 
+    // RetroFit
+    compile "com.squareup.retrofit2:retrofit:$RETROFIT_VERSION"
+    compile "com.squareup.retrofit2:converter-gson:$RETROFIT_VERSION"
+    compile "com.squareup.retrofit2:adapter-rxjava:$RETROFIT_VERSION"
+
+    // RXJava
+    compile "io.reactivex.rxjava2:rxandroid:$RX_ANDROID"
+    // Because RxAndroid releases are few and far between, it is recommended you also
+    // explicitly depend on RxJava's latest version for bug fixes and new features.
+    compile "io.reactivex.rxjava2:rxjava:$RX_ANDROID"
+
+    // Timber logging
+    compile 'com.jakewharton.timber:timber:4.1.2'
+
     // OkHttp as recommended by the course for easy HTTP
     compile 'com.squareup.okhttp:okhttp:2.7.5'
 
     // ButterKnife <3
-    compile 'com.jakewharton:butterknife:8.5.1'
-    annotationProcessor 'com.jakewharton:butterknife-compiler:8.5.1'
+    compile "com.jakewharton:butterknife:$BUTTER_KNIFE_VERSION"
+    annotationProcessor "com.jakewharton:butterknife-compiler:$BUTTER_KNIFE_VERSION"
+
+    // Replace provided dependency below with official AutoValue once this issue is fixed
+    // https://github.com/google/auto/issues/268
+    provided "com.jakewharton.auto.value:auto-value-annotations:$AUTO_VALUE_VERSION"
+    provided "com.ryanharter.auto.value:auto-value-gson:$AUTO_VALUE_GSON_VERSION"
+    annotationProcessor "com.google.auto.value:auto-value:$AUTO_VALUE_VERSION"
+    annotationProcessor 'com.ryanharter.auto.value:auto-value-parcel:0.2.5'
+    annotationProcessor "com.ryanharter.auto.value:auto-value-gson:$AUTO_VALUE_GSON_VERSION"
+    annotationProcessor 'com.squareup:javapoet:1.8.0'
+    // https://github.com/rharter/auto-value-parcel/issues/64
+
+    // Dagger2
+    compile "com.google.dagger:dagger:$DAGGER_VERSION"
+    provided 'org.glassfish:javax.annotation:10.0-b28' //Required by Dagger2
+    annotationProcessor "com.google.dagger:dagger-compiler:$DAGGER_VERSION"
 }
