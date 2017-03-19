@@ -41,7 +41,7 @@ android {
 }
 
 dependencies {
-    final AUTO_VALUE_GSON_VERSION = '0.4.6'
+    final AUTO_VALUE_GSON_VERSION = '0.4.5'
     final AUTO_VALUE_PARCEL_VERSION = '0.2.5'
     final AUTO_VALUE_VERSION = '1.4'
     final BUTTER_KNIFE_VERSION = '8.5.1'
