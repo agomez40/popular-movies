@@ -26,7 +26,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.example.android.popularmovies.R;
-import com.example.android.popularmovies.model.Movie;
+import com.example.android.popularmovies.data.model.Movie;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -105,7 +105,7 @@ class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesViewHolder>
         // Use Picasso to load the image into the view
         Context context = holder.moviePoster.getContext();
 
-        Picasso.with(context).load("http://image.tmdb.org/t/p/w185/" + movie.getPosterPath())
+        Picasso.with(context).load("http://image.tmdb.org/t/p/w185/" + movie.poster_path())
                 .fit()
                 .into(holder.moviePoster);
     }

@@ -23,7 +23,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.android.popularmovies.R;
-import com.example.android.popularmovies.model.Movie;
+import com.example.android.popularmovies.data.model.Movie;
 import com.squareup.picasso.Picasso;
 
 import java.util.Locale;
@@ -84,18 +84,18 @@ public class MovieDetailActivity extends AppCompatActivity {
     private void initUI(Movie movie) {
         // Use Picasso to load the image into the view
         Picasso.with(mIvMoviePoster.getContext())
-                .load("http://image.tmdb.org/t/p/w185/" + movie.getPosterPath())
+                .load("http://image.tmdb.org/t/p/w185/" + movie.poster_path())
                 .placeholder(R.drawable.vector_movie_placeholder)
                 .error(R.drawable.vector_movie_error)
                 .into(mIvMoviePoster);
 
-        mTvTitle.setText(movie.getTitle());
+        mTvTitle.setText(movie.title());
 
         // Format the release date to get only the year
-        mTvReleaseDate.setText(movie.getReleaseDate().substring(0, 4));
+        mTvReleaseDate.setText(movie.release_date().substring(0, 4));
 
         // Format the votes to show avg/10
-        mTvVoteAverage.setText(String.format(Locale.getDefault(), "%.1f", movie.getVoteAverage()).concat("/10"));
-        mTvSynopsis.setText(movie.getOverview());
+        mTvVoteAverage.setText(String.format(Locale.getDefault(), "%.1f", movie.vote_average()).concat("/10"));
+        mTvSynopsis.setText(movie.overview());
     }
 }

@@ -22,11 +22,6 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.util.Log;
 
-import com.squareup.okhttp.CacheControl;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -34,6 +29,12 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
+
+import okhttp3.CacheControl;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import retrofit2.HttpException;
 
 /**
  * Basic network utils
@@ -115,6 +116,19 @@ public class NetworkUtil {
         }
 
         return jsonResponse;
+    }
+
+    /**
+     * Returns true if the Throwable is an instance of RetrofitError with an
+     * http status code equals to the given one.
+     *
+     * @param throwable  The throwable
+     * @param statusCode The HTTP status code
+     * @since 1.2.0 2017/03/18
+     */
+    public static boolean isHttpStatusCode(Throwable throwable, int statusCode) {
+        return throwable instanceof HttpException
+                && ((HttpException) throwable).code() == statusCode;
     }
 
     /**

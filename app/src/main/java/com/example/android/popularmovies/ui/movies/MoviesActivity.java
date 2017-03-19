@@ -30,19 +30,18 @@ import android.view.View;
 import android.widget.ProgressBar;
 
 import com.example.android.popularmovies.R;
-import com.example.android.popularmovies.model.Movie;
-import com.example.android.popularmovies.model.MovieCollection;
-import com.example.android.popularmovies.ui.core.AsyncTaskCompleteListener;
+import com.example.android.popularmovies.data.DataManager;
+import com.example.android.popularmovies.data.model.Movie;
+import com.example.android.popularmovies.data.model.MovieCollection;
+import com.example.android.popularmovies.ui.base.BaseActivity;
 import com.example.android.popularmovies.ui.core.ErrorView;
 import com.example.android.popularmovies.ui.detail.MovieDetailActivity;
-import com.example.android.popularmovies.util.NetworkUtil;
 import com.example.android.popularmovies.util.TheMovieDbUtil;
 import com.example.android.popularmovies.util.ViewUtil;
 
-import java.net.MalformedURLException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -53,9 +52,8 @@ import butterknife.ButterKnife;
  * @see AppCompatActivity
  * @since 1.0.0 2017/02/09
  */
-public class MoviesActivity extends AppCompatActivity implements MoviesAdapter.MovieItemClickListener,
-        ErrorView.ErrorViewListener,
-        AsyncTaskCompleteListener<MovieCollection> {
+public class MoviesActivity extends BaseActivity implements MoviesAdapter.MovieItemClickListener,
+        ErrorView.ErrorViewListener {
 
     // ButterKnife bindings
     @BindView(R.id.toolbar)
@@ -66,11 +64,6 @@ public class MoviesActivity extends AppCompatActivity implements MoviesAdapter.M
     ProgressBar mPbLoadingMovies;
     @BindView(R.id.ev_popular_movies)
     ErrorView mEvPopularMovies;
-
-    /**
-     * The AsyncTask for network IO
-     */
-    private MovieDatabaseQueryTask mMovieTask;
 
     /**
      * Indicates the current sort option
@@ -89,6 +82,9 @@ public class MoviesActivity extends AppCompatActivity implements MoviesAdapter.M
      */
     private MovieCollection mMovieCollection;
 
+    @Inject
+    DataManager mDataManager;
+
     /**
      * {@inheritDoc}
      */
@@ -97,6 +93,9 @@ public class MoviesActivity extends AppCompatActivity implements MoviesAdapter.M
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+
+        // Inject the dependencies
+        activityComponent().inject(this);
 
         setSupportActionBar(mToolbar);
 
@@ -130,7 +129,7 @@ public class MoviesActivity extends AppCompatActivity implements MoviesAdapter.M
             mMovieCollection = savedInstanceState.getParcelable("movieCollection");
 
             if (mMovieCollection != null) {
-                mMoviesAdapter.setMovies(mMovieCollection.getMovies());
+                mMoviesAdapter.setMovies(mMovieCollection.results());
             }
         } else {
             // Fetch the movies from the network
@@ -204,20 +203,6 @@ public class MoviesActivity extends AppCompatActivity implements MoviesAdapter.M
      * {@inheritDoc}
      */
     @Override
-    protected void onDestroy() {
-        // Check if the task is running
-        if (mMovieTask != null) {
-            // Cancel the task or it will leak on activity destroy or rotating the screen
-            mMovieTask.cancel(true);
-            mMovieTask = null;
-        }
-        super.onDestroy();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void onRetryClick() {
         // retry the action on error, fetch the movies
         mEvPopularMovies.setVisibility(View.GONE);
@@ -234,34 +219,6 @@ public class MoviesActivity extends AppCompatActivity implements MoviesAdapter.M
         Intent intent = new Intent(this, MovieDetailActivity.class);
         intent.putExtra("movie", movie);
         startActivity(intent);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void onTaskRunning() {
-        showProgressIndicator(true);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void onTaskError(@StringRes int stringId) {
-        showError(stringId);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void onTaskComplete(MovieCollection movieCollection) {
-        // fill the grid adapter and display the movies
-        mMovieCollection = movieCollection;
-        mMoviesAdapter.setMovies(mMovieCollection.getMovies());
-        mMoviesAdapter.notifyDataSetChanged();
-        showProgressIndicator(false);
     }
 
     /**
@@ -301,35 +258,6 @@ public class MoviesActivity extends AppCompatActivity implements MoviesAdapter.M
      * @since 1.0.0 2017/02/18
      */
     private void getMovies(short sort) {
-        try {
-            // Check if a task is running and cancel it
-            if (mMovieTask != null) {
-                mMovieTask.cancel(true);
-                mMovieTask = null;
-            }
-
-            // Create the async task passing the context and the AsyncTaskListener
-            mMovieTask = new MovieDatabaseQueryTask(MoviesActivity.this, this);
-
-            // Store the current sort option
-            mSort = sort;
-
-            // Query parameters
-            // NOTE: Optional params "language" Pass a ISO 639-1 value to display translated data
-            Map<String, String> params = new HashMap<>();
-            params.put("api_key", getString(R.string.movie_db_api_v3_key));
-
-            switch (sort) {
-                case TheMovieDbUtil.SORT_MOST_POPULAR:
-                    mMovieTask.execute(NetworkUtil.buildUrl(TheMovieDbUtil.GET_POPULAR_MOVIES, params));
-                    break;
-                case TheMovieDbUtil.SORT_TOP_RATED:
-                    mMovieTask.execute(NetworkUtil.buildUrl(TheMovieDbUtil.GET_TOP_RATED_MOVIES, params));
-                    break;
-            }
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-            showError(R.string.error_no_results);
-        }
+        mDataManager.getPopularMovies(1, null);
     }
 }

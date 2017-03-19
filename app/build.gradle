@@ -34,6 +34,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    packagingOptions {
+        exclude 'META-INF/rxjava.properties'
+    }
 }
 
 dependencies {
@@ -46,11 +50,12 @@ dependencies {
     final JAVA_POET_VERSION = '1.8.0'
     final OK_HTTP_VERSION = '3.6.0'
     final PICASSO_VERSION = '2.5.2'
-    final RETROFIT_VERSION = '2.1.0'
+    final RETROFIT_VERSION = '2.2.0'
     final RX_ANDROID = '2.0.1'
     final SUPPORT_LIBRARY_VERSION = '25.3.0'
     final TIMBER_VERSION = '4.1.2'
     final TRELLO_VERSION = '2.0.1'
+    final LEAK_CANNARY_VERSION = '1.5'
 
     compile fileTree(dir: 'libs', include: ['*.jar'])
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
@@ -74,7 +79,7 @@ dependencies {
     // RetroFit
     compile "com.squareup.retrofit2:retrofit:$RETROFIT_VERSION"
     compile "com.squareup.retrofit2:converter-gson:$RETROFIT_VERSION"
-    compile "com.squareup.retrofit2:adapter-rxjava:$RETROFIT_VERSION"
+    compile "com.squareup.retrofit2:adapter-rxjava2:$RETROFIT_VERSION"
 
     // RXJava
     compile "io.reactivex.rxjava2:rxandroid:$RX_ANDROID"
@@ -107,4 +112,9 @@ dependencies {
     compile "com.google.dagger:dagger:$DAGGER_VERSION"
     provided 'org.glassfish:javax.annotation:10.0-b28' //Required by Dagger2
     annotationProcessor "com.google.dagger:dagger-compiler:$DAGGER_VERSION"
+
+    // Leak cannary
+    debugCompile "com.squareup.leakcanary:leakcanary-android:$LEAK_CANNARY_VERSION"
+    releaseCompile "com.squareup.leakcanary:leakcanary-android-no-op:$LEAK_CANNARY_VERSION"
+    testCompile "com.squareup.leakcanary:leakcanary-android-no-op:$LEAK_CANNARY_VERSION"
 }
