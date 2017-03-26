@@ -37,14 +37,14 @@ import java.util.List;
  * @version 1.0.0 2017/02/13
  * @see android.support.v7.widget.RecyclerView.Adapter
  * @see Movie
- * @since 1.0.0 2017/02/13
+ * @since 1.0.1 2017/03/23
  */
 class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesViewHolder> {
     /**
      * Class Logging tag
      */
     private static final String TAG = MoviesAdapter.class.getSimpleName();
-    private static final double ASPECT_RATIO = 185.0 / 278.0;
+    // private static final double ASPECT_RATIO = 185.0 / 278.0;
     /**
      * Click listener
      */
@@ -55,12 +55,19 @@ class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesViewHolder>
     private List<Movie> mMovies;
 
     /**
+     * The container context
+     */
+    private Context mContext;
+
+    /**
      * Constructor
      *
-     * @param listener     The on click listener
+     * @param context  The context
+     * @param listener The on click listener
      * @since 1.0.0 2017/02/13
      */
-    MoviesAdapter(MovieItemClickListener listener) {
+    MoviesAdapter(Context context, MovieItemClickListener listener) {
+        this.mContext = context;
         this.mListener = listener;
         Log.d(TAG, "Created.");
     }
@@ -79,7 +86,7 @@ class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesViewHolder>
      */
     @Override
     public MoviesViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
-        LayoutInflater inflater = LayoutInflater.from(viewGroup.getContext());
+        LayoutInflater inflater = LayoutInflater.from(mContext);
 
         View view = inflater.inflate(R.layout.movie_grid_item, viewGroup, false);
         RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) view.getLayoutParams();
@@ -102,10 +109,9 @@ class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesViewHolder>
     @Override
     public void onBindViewHolder(MoviesViewHolder holder, int position) {
         Movie movie = mMovies.get(position);
-        // Use Picasso to load the image into the view
-        Context context = holder.moviePoster.getContext();
 
-        Picasso.with(context).load("http://image.tmdb.org/t/p/w185/" + movie.poster_path())
+        // Use Picasso to load the image into the view
+        Picasso.with(mContext).load("http://image.tmdb.org/t/p/w185/" + movie.poster_path())
                 .fit()
                 .into(holder.moviePoster);
     }
@@ -177,8 +183,7 @@ class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesViewHolder>
         /**
          * Constructor
          *
-         * @param itemView     the view to bind
-         *
+         * @param itemView the view to bind
          * @since 1.0.0 2017/02/13
          */
         MoviesViewHolder(View itemView) {
