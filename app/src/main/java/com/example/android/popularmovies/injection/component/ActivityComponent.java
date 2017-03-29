@@ -38,8 +38,4 @@ public interface ActivityComponent {
     void inject(MoviesActivity moviesActivity);
 
     void inject(MovieDetailActivity movieDetailActivity);
-
-    void inject(DetailFragment detailFragment);
-
-    void inject(MovieGridFragment movieGridFragment);
 }

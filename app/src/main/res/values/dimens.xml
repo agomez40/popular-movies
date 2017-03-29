@@ -26,4 +26,9 @@
     <dimen name="poster_detail_height">200dp</dimen>
     <dimen name="movie_db_watermark_width">100dp</dimen>
     <dimen name="movie_db_watermark_height">100dp</dimen>
+    <dimen name="no_margin">0dp</dimen>
+    <dimen name="constraint_margin">8dp</dimen>
+    <dimen name="fab_margin">16dp</dimen>
+    <dimen name="card_margin_top">8dp</dimen>
+    <dimen name="pager_height">300dp</dimen>
 </resources>

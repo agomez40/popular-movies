@@ -22,7 +22,7 @@
     <string name="title_activity_movie_detail">Movie Detail</string>
 
     <!-- TODO The Movie DB API keys, change the default values using your own API Keys -->
-    <string name="movie_db_api_v3_key" translatable="false">API KEY V3</string>
+    <string name="movie_db_api_v3_key" translatable="false">API V3</string>
 
     <!-- content description for image views -->
     <string name="content.description.errorImage">Error image view</string>
@@ -41,4 +41,7 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="label_overview">Overview</string>
+    <string name="label_trailers">Trailers</string>
+    <string name="label_reviews">Reviews</string>
 </resources>
