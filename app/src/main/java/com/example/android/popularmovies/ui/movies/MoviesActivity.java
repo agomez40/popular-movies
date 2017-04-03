@@ -34,6 +34,7 @@ import com.example.android.popularmovies.data.DataManager;
 import com.example.android.popularmovies.data.model.Movie;
 import com.example.android.popularmovies.data.model.MovieCollection;
 import com.example.android.popularmovies.ui.base.BaseActivity;
+import com.example.android.popularmovies.ui.base.MoviesAdapter;
 import com.example.android.popularmovies.ui.core.ErrorView;
 import com.example.android.popularmovies.ui.detail.MovieDetailActivity;
 import com.example.android.popularmovies.util.ExceptionParser;

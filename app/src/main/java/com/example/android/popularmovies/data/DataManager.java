@@ -22,6 +22,8 @@ import com.example.android.popularmovies.data.local.SharedPrefKeys;
 import com.example.android.popularmovies.data.local.SharedPreferencesHelper;
 import com.example.android.popularmovies.data.model.Movie;
 import com.example.android.popularmovies.data.model.MovieCollection;
+import com.example.android.popularmovies.data.model.ReviewCollection;
+import com.example.android.popularmovies.data.model.TrailersCollection;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -100,15 +102,24 @@ public class DataManager {
     }
 
     /**
-     * Get the primary information about a movie.
      *
      * @param movieId The movie id
-     * @param language The language locale
      * @return
      * @since 1.2.0 2017/03/18
      */
-    public Observable<Movie> getMovieDetail(Integer movieId, @Nullable String language) {
+    public Observable<ReviewCollection> getReviews(Integer movieId) {
         String apiKey = (String) mSharedPreferencesHelper.getEntry(SharedPrefKeys.API_KEY, String.class);
-        return mMovieDbApiService.getMovieDetail(apiKey, movieId, language);
+        return mMovieDbApiService.getMovieReviews(movieId, apiKey);
+    }
+
+    /**
+     *
+     * @param movieId The movie id
+     * @return
+     * @since 1.2.0 2017/03/18
+     */
+    public Observable<TrailersCollection> getTrailers(Integer movieId) {
+        String apiKey = (String) mSharedPreferencesHelper.getEntry(SharedPrefKeys.API_KEY, String.class);
+        return mMovieDbApiService.getMovieTrailers(movieId, apiKey);
     }
 }

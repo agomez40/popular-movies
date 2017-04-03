@@ -16,8 +16,10 @@
 
 package com.example.android.popularmovies.data;
 
+import com.example.android.popularmovies.data.model.ReviewCollection;
 import com.example.android.popularmovies.data.model.Movie;
 import com.example.android.popularmovies.data.model.MovieCollection;
+import com.example.android.popularmovies.data.model.TrailersCollection;
 import com.example.android.popularmovies.util.AppGsonTypeAdapterFactory;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -68,18 +70,24 @@ public interface MovieDbApiService {
                                                   @Query("language") String language);
 
     /**
-     * Get the primary information about a movie.
-     *
-     * @param apiKey   The api key
-     * @param movieId  The movie id
-     * @param language The language ICU locale
+     * @param apiKey  The api key
+     * @param movieId The movie id
      * @return
      * @since 1.2.0 2017/03/18
      */
-    @GET("{movie_id}")
-    Observable<Movie> getMovieDetail(@Query("api_key") String apiKey,
-                                     @Path("movie_id") Integer movieId,
-                                     @Query("language") String language);
+    @GET("{movie_id}/reviews")
+    Observable<ReviewCollection> getMovieReviews(@Path("movie_id") Integer movieId,
+                                                 @Query("api_key") String apiKey);
+
+    /**
+     * @param apiKey  The api key
+     * @param movieId The movie id
+     * @return
+     * @since 1.2.0 2017/03/18
+     */
+    @GET("{movie_id}/videos")
+    Observable<TrailersCollection> getMovieTrailers(@Path("movie_id") Integer movieId,
+                                                    @Query("api_key") String apiKey);
 
     /**
      * Helper class that sets up a new services

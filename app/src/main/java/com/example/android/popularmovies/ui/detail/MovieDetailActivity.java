@@ -17,24 +17,40 @@
 package com.example.android.popularmovies.ui.detail;
 
 import android.os.Bundle;
+import android.support.annotation.StringRes;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.android.popularmovies.R;
+import com.example.android.popularmovies.data.DataManager;
 import com.example.android.popularmovies.data.model.Movie;
+import com.example.android.popularmovies.data.model.MovieCollection;
+import com.example.android.popularmovies.data.model.ReviewCollection;
+import com.example.android.popularmovies.data.model.TrailersCollection;
+import com.example.android.popularmovies.ui.base.BaseActivity;
+import com.example.android.popularmovies.ui.base.ReviewsAdapter;
+import com.example.android.popularmovies.util.ExceptionParser;
 import com.squareup.picasso.Picasso;
 
 import java.util.Locale;
 
+import javax.inject.Inject;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.observers.DisposableObserver;
+import io.reactivex.schedulers.Schedulers;
+import timber.log.Timber;
 
 /**
  * @author Luis Alberto Gómez Rodríguez (alberto.gomez@cargomovil.com)
@@ -42,15 +58,11 @@ import butterknife.OnClick;
  * @see AppCompatActivity
  * @since 1.0.0 2017/02/14
  */
-public class MovieDetailActivity extends AppCompatActivity {
+public class MovieDetailActivity extends BaseActivity {
 
     // ButterKnife view bindings
     @BindView(R.id.toolbar)
     Toolbar mToolbar;
-    @BindView(R.id.app_bar_image)
-    ImageView mAppBarImage;
-    @BindView(R.id.tv_movie_title)
-    TextView mTvMovieTitle;
     @BindView(R.id.tv_review)
     TextView mTvReview;
     @BindView(R.id.tv_duration)
@@ -69,6 +81,18 @@ public class MovieDetailActivity extends AppCompatActivity {
     ImageView mIvMoviePoster;
     @BindView(R.id.collapsing_toolbar)
     CollapsingToolbarLayout mCollapsingToolbar;
+    @BindView(R.id.app_bar_image)
+    ImageView mAppBarImage;
+
+    // The current movie detail
+    private Movie mMovie;
+
+    // The recycler view adapter
+    ReviewsAdapter mReviewsAdapter;
+
+    // Injects the manager using dagger2
+    @Inject
+    DataManager mDataManager;
 
     /**
      * {@inheritDoc}
@@ -79,6 +103,9 @@ public class MovieDetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_movie_detail);
         ButterKnife.bind(this);
 
+        // Inject the dependencies
+        activityComponent().inject(this);
+
         setSupportActionBar(mToolbar);
 
         if (getSupportActionBar() != null) {
@@ -88,8 +115,8 @@ public class MovieDetailActivity extends AppCompatActivity {
 
         // Get the extras and set the movie title
         if (!getIntent().getExtras().isEmpty()) {
-            Movie movie = getIntent().getParcelableExtra("movie");
-            initUI(movie);
+            mMovie = getIntent().getParcelableExtra("movie");
+            initUI(mMovie);
         }
     }
 
@@ -107,7 +134,6 @@ public class MovieDetailActivity extends AppCompatActivity {
                 .error(R.drawable.vector_movie_placeholder)
                 .into(mIvMoviePoster);
 
-        mTvMovieTitle.setText(movie.title());
         mCollapsingToolbar.setTitle(movie.title());
 
         // load the parallax photo
@@ -115,18 +141,110 @@ public class MovieDetailActivity extends AppCompatActivity {
                 .load("http://image.tmdb.org/t/p/w500/" + movie.backdrop_path())
                 .placeholder(R.color.colorPrimary)
                 .error(R.color.colorPrimary)
+                .fit()
                 .into(mAppBarImage);
 
         // Format the release date to get only the year
-        mTvReleaseDate.setText(movie.release_date().substring(0, 4));
+        mTvReleaseDate.setText(movie.release_date());
 
         // Format the votes to show avg/10
         mTvReview.setText(String.format(Locale.getDefault(), "%.1f", movie.vote_average()).concat("/10"));
         mTvOverview.setText(movie.overview());
         mTvReleaseDate.setText(movie.release_date());
+
+        // Load the movie trailers
+        // getMovieTrailers(movie);
+
+        // Load the movie reviews
+        getMovieReviews(movie);
+
+        mReviewsAdapter = new ReviewsAdapter(this);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        mRvMovieReviews.setLayoutManager(linearLayoutManager);
+        mRvMovieReviews.setHasFixedSize(true);
+        mRvMovieReviews.setItemAnimator(new DefaultItemAnimator());
+        mRvMovieReviews.setAdapter(mReviewsAdapter);
     }
 
     @OnClick(R.id.fab_movie_detail)
     public void onViewClicked() {
+        // TODO add it to the favourites database
+        if (mMovie.favourite() != null && mMovie.favourite()) {
+            mFabMovieDetail.setImageResource(R.drawable.vector_ic_favorite_border);
+        } else {
+            mFabMovieDetail.setImageResource(R.drawable.vector_ic_favorite);
+        }
+    }
+
+    /**
+     * @param movie The movie
+     * @since 1.0.0 2017/02/14
+     */
+    private void getMovieTrailers(Movie movie) {
+        // TODO show the loading indicator inside the trailers card
+        mDataManager.getTrailers(movie.id())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribeWith(new DisposableObserver<TrailersCollection>() {
+
+                    @Override
+                    public void onNext(TrailersCollection value) {
+                        Timber.i("Get Trailers DisposableObserver onNext.");
+                        // TODO set the adapter data
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Timber.e(e, e.getMessage());
+                        // Parse the error to show a user friendly message
+                        int errorStringId = ExceptionParser.parseException((Exception) e);
+
+                        // TODO show the error and hide the card
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        Timber.i("Get Trailers DisposableObserver completed.");
+                    }
+                });
+    }
+
+    /**
+     * @param movie The movie
+     * @since 1.0.0 2017/02/14
+     */
+    private void getMovieReviews(Movie movie) {
+        // TODO show the loading indicator inside the reviews card
+        try {
+            mDataManager.getReviews(movie.id())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeOn(Schedulers.io())
+                    .subscribeWith(new DisposableObserver<ReviewCollection>() {
+
+                        @Override
+                        public void onNext(ReviewCollection value) {
+                            Timber.i("Get Reviews DisposableObserver onNext.");
+                            // set the adapter data
+                            mReviewsAdapter.setReviews(value.results());
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+                            Timber.e(e, e.getMessage());
+                            // Parse the error to show a user friendly message
+                            int errorStringId = ExceptionParser.parseException((Exception) e);
+
+                            // TODO show the error and hide the card
+                        }
+
+                        @Override
+                        public void onComplete() {
+                            Timber.i("Get Reviews DisposableObserver completed.");
+                        }
+                    });
+        } catch (Exception e) {
+            Timber.e(e, e.getMessage());
+        }
     }
 }

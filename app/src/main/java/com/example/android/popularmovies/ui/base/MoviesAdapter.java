@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.android.popularmovies.ui.movies;
+package com.example.android.popularmovies.ui.base;
 
 import android.content.Context;
 import android.os.Parcelable;
@@ -39,7 +39,7 @@ import java.util.List;
  * @see Movie
  * @since 1.0.1 2017/03/23
  */
-class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesViewHolder> {
+public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesViewHolder> {
     /**
      * Class Logging tag
      */
@@ -66,7 +66,7 @@ class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesViewHolder>
      * @param listener The on click listener
      * @since 1.0.0 2017/02/13
      */
-    MoviesAdapter(Context context, MovieItemClickListener listener) {
+    public MoviesAdapter(Context context, MovieItemClickListener listener) {
         this.mContext = context;
         this.mListener = listener;
         Log.d(TAG, "Created.");
@@ -130,7 +130,7 @@ class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesViewHolder>
      * @return the items stored in the adapter
      * @since 1.0.0 2017/02/13
      */
-    ArrayList<? extends Parcelable> getItems() {
+    public ArrayList<? extends Parcelable> getItems() {
         if (mMovies != null) {
             return new ArrayList<>(mMovies);
         } else {
@@ -144,7 +144,7 @@ class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesViewHolder>
      * @param movies the movies to set
      * @since 1.0.0 2017/02/13
      */
-    void setMovies(List<Movie> movies) {
+    public void setMovies(List<Movie> movies) {
         this.mMovies = movies;
         notifyDataSetChanged();
     }
@@ -152,7 +152,7 @@ class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesViewHolder>
     /**
      * @since 1.0.0 2017/02/13
      */
-    interface MovieItemClickListener {
+    public interface MovieItemClickListener {
         /**
          * OnMovieItemClickListener event
          *

@@ -2,6 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_marginLeft="@dimen/activity_horizontal_margin"
+    android:layout_marginRight="@dimen/activity_horizontal_margin"
     android:orientation="vertical">
 
     <TextView
@@ -9,9 +11,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/activity_horizontal_margin"
-        android:fontFamily="sans-serif"
         android:text="@string/label_reviews"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+        android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+        android:textSize="18sp" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rv_movie_reviews"

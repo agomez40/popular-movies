@@ -112,6 +112,9 @@ public abstract class Movie implements Parcelable {
     @Nullable
     String tagline();
 
+    public abstract @Nullable Boolean favourite();
+
+
     /**
      * Gets the AutoValue_Movie.Builder()
      *
@@ -192,6 +195,8 @@ public abstract class Movie implements Parcelable {
         public abstract Movie.Builder setStatus(@Nullable String status);
 
         public abstract Movie.Builder setTagline(@Nullable String tagline);
+
+        public abstract Movie.Builder setFavourite(@Nullable Boolean favourite);
 
         public abstract Movie build();
     }

@@ -20,4 +20,6 @@
     <color name="colorPrimaryDark">#212121</color>
     <color name="colorAccent">#FF5252</color>
     <color name="colorAccentAlt">#009688</color>
+    <color name="colorBlue">#2196F3</color>
+    <color name="grey">#E0E0E0</color>
 </resources>

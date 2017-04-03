@@ -63,6 +63,7 @@ dependencies {
     })
 
     // Android support libraries
+    compile "com.android.support:support-v4:$SUPPORT_LIBRARY_VERSION"
     compile "com.android.support:appcompat-v7:$SUPPORT_LIBRARY_VERSION"
     compile "com.android.support:recyclerview-v7:$SUPPORT_LIBRARY_VERSION"
     compile "com.android.support:support-annotations:$SUPPORT_LIBRARY_VERSION"
@@ -116,7 +117,7 @@ dependencies {
     debugCompile "com.squareup.leakcanary:leakcanary-android:$LEAK_CANNARY_VERSION"
     releaseCompile "com.squareup.leakcanary:leakcanary-android-no-op:$LEAK_CANNARY_VERSION"
     testCompile "com.squareup.leakcanary:leakcanary-android-no-op:$LEAK_CANNARY_VERSION"
-    compile 'com.android.support:support-v4:25.3.0'
+
     testCompile 'junit:junit:4.12'
     androidTestCompile 'com.google.code.findbugs:jsr305:3.0.1'
     provided 'org.glassfish:javax.annotation:10.0-b28'
