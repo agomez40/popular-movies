@@ -30,5 +30,5 @@
     <dimen name="constraint_margin">8dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="card_margin_top">8dp</dimen>
-    <dimen name="pager_height">300dp</dimen>
+    <dimen name="pager_height">150dp</dimen>
 </resources>
