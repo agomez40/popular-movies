@@ -17,10 +17,8 @@
 package com.example.android.popularmovies.ui.detail;
 
 import android.os.Bundle;
-import android.support.annotation.StringRes;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -32,7 +30,6 @@ import android.widget.TextView;
 import com.example.android.popularmovies.R;
 import com.example.android.popularmovies.data.DataManager;
 import com.example.android.popularmovies.data.model.Movie;
-import com.example.android.popularmovies.data.model.MovieCollection;
 import com.example.android.popularmovies.data.model.ReviewCollection;
 import com.example.android.popularmovies.data.model.TrailersCollection;
 import com.example.android.popularmovies.ui.base.BaseActivity;
@@ -51,6 +48,8 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
+
+import static android.content.res.Configuration.ORIENTATION_PORTRAIT;
 
 /**
  * @author Luis Alberto Gómez Rodríguez (alberto.gomez@cargomovil.com)
@@ -72,7 +71,7 @@ public class MovieDetailActivity extends BaseActivity {
     @BindView(R.id.tv_overview)
     TextView mTvOverview;
     @BindView(R.id.pager_trailers)
-    ViewPager mPagerTrailers;
+    RecyclerView mPagerTrailers;
     @BindView(R.id.rv_movie_reviews)
     RecyclerView mRvMovieReviews;
     @BindView(R.id.fab_movie_detail)
@@ -81,18 +80,14 @@ public class MovieDetailActivity extends BaseActivity {
     ImageView mIvMoviePoster;
     @BindView(R.id.collapsing_toolbar)
     CollapsingToolbarLayout mCollapsingToolbar;
-    @BindView(R.id.app_bar_image)
     ImageView mAppBarImage;
-
-    // The current movie detail
-    private Movie mMovie;
-
     // The recycler view adapter
     ReviewsAdapter mReviewsAdapter;
-
     // Injects the manager using dagger2
     @Inject
     DataManager mDataManager;
+    // The current movie detail
+    private Movie mMovie;
 
     /**
      * {@inheritDoc}
@@ -111,6 +106,10 @@ public class MovieDetailActivity extends BaseActivity {
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowTitleEnabled(true);
+        }
+
+        if (getResources().getConfiguration().orientation == ORIENTATION_PORTRAIT) {
+            mAppBarImage = (ImageView) findViewById(R.id.app_bar_image);
         }
 
         // Get the extras and set the movie title
@@ -136,13 +135,15 @@ public class MovieDetailActivity extends BaseActivity {
 
         mCollapsingToolbar.setTitle(movie.title());
 
-        // load the parallax photo
-        Picasso.with(mIvMoviePoster.getContext())
-                .load("http://image.tmdb.org/t/p/w500/" + movie.backdrop_path())
-                .placeholder(R.color.colorPrimary)
-                .error(R.color.colorPrimary)
-                .fit()
-                .into(mAppBarImage);
+        if (mAppBarImage != null) {
+            // load the parallax photo
+            Picasso.with(mIvMoviePoster.getContext())
+                    .load("http://image.tmdb.org/t/p/w500/" + movie.backdrop_path())
+                    .placeholder(R.color.colorPrimary)
+                    .error(R.color.colorPrimary)
+                    .fit()
+                    .into(mAppBarImage);
+        }
 
         // Format the release date to get only the year
         mTvReleaseDate.setText(movie.release_date());
@@ -155,24 +156,42 @@ public class MovieDetailActivity extends BaseActivity {
         // Load the movie trailers
         // getMovieTrailers(movie);
 
+        mPagerTrailers.setLayoutManager(new
+
+                LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        mPagerTrailers.setHasFixedSize(true);
+        mPagerTrailers.setItemAnimator(new DefaultItemAnimator());
+        mPagerTrailers.setFocusable(false);
+
+        // TODO set the adapter
         // Load the movie reviews
         getMovieReviews(movie);
 
         mReviewsAdapter = new ReviewsAdapter(this);
+
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         mRvMovieReviews.setLayoutManager(linearLayoutManager);
         mRvMovieReviews.setHasFixedSize(true);
         mRvMovieReviews.setItemAnimator(new DefaultItemAnimator());
         mRvMovieReviews.setAdapter(mReviewsAdapter);
+        mRvMovieReviews.setFocusable(false);
+
+        if (mDataManager.isFavorite(mMovie)) {
+            mFabMovieDetail.setImageResource(R.drawable.vector_ic_favorite);
+        } else {
+            mFabMovieDetail.setImageResource(R.drawable.vector_ic_favorite_border);
+        }
     }
 
     @OnClick(R.id.fab_movie_detail)
     public void onViewClicked() {
-        // TODO add it to the favourites database
-        if (mMovie.favourite() != null && mMovie.favourite()) {
-            mFabMovieDetail.setImageResource(R.drawable.vector_ic_favorite_border);
-        } else {
+        // add it to the favourites database
+        if (!mDataManager.isFavorite(mMovie)) {
+            mDataManager.addMovieToFavourites(mMovie);
             mFabMovieDetail.setImageResource(R.drawable.vector_ic_favorite);
+        } else {
+            mDataManager.removeFavourite(mMovie);
+            mFabMovieDetail.setImageResource(R.drawable.vector_ic_favorite_border);
         }
     }
 

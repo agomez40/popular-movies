@@ -53,6 +53,12 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.movies.MoviesActivity" />
         </activity>
+
+        <!-- Local SQLite database content provider -->
+        <provider
+            android:name=".data.local.MoviesProvider"
+            android:authorities="com.example.android.popularmovies"
+            android:exported="false" />
     </application>
 
 </manifest>

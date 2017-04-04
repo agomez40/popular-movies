@@ -21,10 +21,8 @@ import android.content.Context;
 
 import com.example.android.popularmovies.data.DataManager;
 import com.example.android.popularmovies.data.MovieDbApiService;
-import com.example.android.popularmovies.data.local.DatabaseHelper;
 import com.example.android.popularmovies.data.local.SharedPreferencesHelper;
 import com.example.android.popularmovies.injection.context.ApplicationContext;
-import com.example.android.popularmovies.injection.module.ActivityModule;
 import com.example.android.popularmovies.injection.module.ApplicationModule;
 
 import javax.inject.Singleton;

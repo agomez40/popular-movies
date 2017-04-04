@@ -61,6 +61,18 @@ import timber.log.Timber;
 public class MoviesActivity extends BaseActivity implements MoviesAdapter.MovieItemClickListener,
         ErrorView.ErrorViewListener {
 
+    /**
+     * Sort by most popular flag
+     */
+    public final static short SORT_MOST_POPULAR = 1;
+    /**
+     * Sort by top rated flag
+     */
+    public final static short SORT_TOP_RATED = 2;
+    /**
+     * Sort by favourites
+     */
+    public final static short FAVOURITES = 3;
     // ButterKnife bindings
     @BindView(R.id.toolbar)
     Toolbar mToolbar;
@@ -70,52 +82,36 @@ public class MoviesActivity extends BaseActivity implements MoviesAdapter.MovieI
     ProgressBar mPbLoadingMovies;
     @BindView(R.id.ev_popular_movies)
     ErrorView mEvPopularMovies;
-
+    @Inject
+    DataManager mDataManager;
     /**
      * Indicates the current sort option
      * 1. Sort by Most Popular
      * 2. Sort by Top Rated
+     * 3. Sort by favourites
      */
     private short mSort = 0;
-
     /**
      * The page to fetch from the API
      * defaults to 1
      */
     private int mPage = 1;
-
     /**
      * Two panel design screen for tablets flag
      */
     private boolean mTwoPane;
-
     /**
      * The GridView adapter
      */
     private MoviesAdapter mMoviesAdapter;
-
     /**
      * The current movie collection to display
      */
     private MovieCollection mMovieCollection;
-
     /**
      * RxJava subscription to fetch data
      */
     private Disposable mDisposableSubscription;
-
-    /**
-     * Sort by most popular flag
-     */
-    public final static short SORT_MOST_POPULAR = 1;
-
-    /**
-     * Sort by top rated flag
-     */
-    public final static short SORT_TOP_RATED = 2;
-
-    @Inject
-    DataManager mDataManager;
 
     /**
      * {@inheritDoc}
@@ -197,6 +193,7 @@ public class MoviesActivity extends BaseActivity implements MoviesAdapter.MovieI
                 getMovies(SORT_TOP_RATED);
                 break;
             case R.id.action_show_favourites:
+                getMovies(FAVOURITES);
                 break;
             default:
                 break;
@@ -303,6 +300,12 @@ public class MoviesActivity extends BaseActivity implements MoviesAdapter.MovieI
                         .subscribeOn(Schedulers.io())
                         .subscribeWith(newDisposableObserver());
                 break;
+            case FAVOURITES:
+                mDisposableSubscription = mDataManager.getFavourites(mPage)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeOn(Schedulers.io())
+                        .subscribeWith(newDisposableObserver());
+                break;
             default:
                 mDisposableSubscription = mDataManager.getPopularMovies(mPage, null)
                         .observeOn(AndroidSchedulers.mainThread())
@@ -310,7 +313,6 @@ public class MoviesActivity extends BaseActivity implements MoviesAdapter.MovieI
                         .subscribeWith(newDisposableObserver());
                 break;
         }
-
     }
 
     /**
@@ -341,10 +343,13 @@ public class MoviesActivity extends BaseActivity implements MoviesAdapter.MovieI
     }
 
     /**
-     * @param movies
+     * @param
      */
     private void setAdapterData(List<Movie> movies) {
-        mMoviesAdapter.setMovies(movies);
-        showProgressIndicator(false);
+        // TODO If no data is present show a view asking the user to add favourite movies
+        if (movies.size() > 0) {
+            mMoviesAdapter.setMovies(movies);
+            showProgressIndicator(false);
+        }
     }
 }

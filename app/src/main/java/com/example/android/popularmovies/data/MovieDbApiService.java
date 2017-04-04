@@ -16,9 +16,8 @@
 
 package com.example.android.popularmovies.data;
 
-import com.example.android.popularmovies.data.model.ReviewCollection;
-import com.example.android.popularmovies.data.model.Movie;
 import com.example.android.popularmovies.data.model.MovieCollection;
+import com.example.android.popularmovies.data.model.ReviewCollection;
 import com.example.android.popularmovies.data.model.TrailersCollection;
 import com.example.android.popularmovies.util.AppGsonTypeAdapterFactory;
 import com.google.gson.Gson;
@@ -47,7 +46,7 @@ public interface MovieDbApiService {
      * @param apiKey   The api key
      * @param page     The page to fetch
      * @param language The language ICU locale
-     * @return
+     * @return A Observable object, which wraps the REST API result
      * @since 1.2.0 2017/03/18
      */
     @GET("popular")
@@ -61,7 +60,7 @@ public interface MovieDbApiService {
      * @param apiKey   The api key
      * @param page     The page to fetch
      * @param language The language ICU locale
-     * @return
+     * @return A Observable object, which wraps the REST API result
      * @since 1.2.0 2017/03/18
      */
     @GET("top_rated")
@@ -70,23 +69,27 @@ public interface MovieDbApiService {
                                                   @Query("language") String language);
 
     /**
+     * Gets the movie reviews.
+     *
      * @param apiKey  The api key
      * @param movieId The movie id
-     * @return
+     * @return A Observable object, which wraps the REST API result
      * @since 1.2.0 2017/03/18
      */
     @GET("{movie_id}/reviews")
-    Observable<ReviewCollection> getMovieReviews(@Path("movie_id") Integer movieId,
+    Observable<ReviewCollection> getMovieReviews(@Path("movie_id") Long movieId,
                                                  @Query("api_key") String apiKey);
 
     /**
+     * Gets the movie trailers.
+     *
      * @param apiKey  The api key
      * @param movieId The movie id
-     * @return
+     * @return A Observable object, which wraps the REST API result
      * @since 1.2.0 2017/03/18
      */
     @GET("{movie_id}/videos")
-    Observable<TrailersCollection> getMovieTrailers(@Path("movie_id") Integer movieId,
+    Observable<TrailersCollection> getMovieTrailers(@Path("movie_id") Long movieId,
                                                     @Query("api_key") String apiKey);
 
     /**

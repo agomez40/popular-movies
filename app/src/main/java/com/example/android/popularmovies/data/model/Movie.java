@@ -16,14 +16,19 @@
 
 package com.example.android.popularmovies.data.model;
 
+import android.content.ContentValues;
+import android.database.Cursor;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
 
+import com.example.android.popularmovies.data.local.DatabaseContract;
 import com.google.auto.value.AutoValue;
 import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
 
 import java.util.List;
+
+import timber.log.Timber;
 
 /**
  * Movie entity, as defined by:
@@ -39,17 +44,86 @@ import java.util.List;
  */
 @AutoValue
 public abstract class Movie implements Parcelable {
-    public abstract String poster_path();
+    /**
+     * Gets the AutoValue_Movie.Builder()
+     *
+     * @return the class Builder
+     * @since 1.2.0 2017/03/18
+     */
+    public static Movie.Builder builder() {
+        return new AutoValue_Movie.Builder();
+    }
 
-    public abstract Boolean adult();
+    /**
+     * Type adapter used by Gson and Dagger2 AutoValue
+     *
+     * @param gson the gson instance
+     * @return {@link TypeAdapter <Card>}
+     * @since 1.2.0 2017/03/18
+     */
+    public static TypeAdapter<Movie> typeAdapter(Gson gson) {
+        return new AutoValue_Movie.GsonTypeAdapter(gson);
+    }
+
+    /**
+     * Parses the object to a ContentValue
+     *
+     * @return the parsed object
+     * @since 1.2.0 2017/03/18
+     */
+    public static ContentValues toContentValues(Movie movie) {
+        ContentValues values = new ContentValues();
+        values.put(DatabaseContract.MovieEntry._ID, movie.id());
+        values.put(DatabaseContract.MovieEntry.COLUMN_ORIGINAL_TITLE, movie.original_title());
+        values.put(DatabaseContract.MovieEntry.COLUMN_ORIGINAL_LANGUAGE, movie.original_language());
+        values.put(DatabaseContract.MovieEntry.COLUMN_OVERVIEW, movie.overview());
+        values.put(DatabaseContract.MovieEntry.COLUMN_RELEASE_DATE, movie.release_date());
+        values.put(DatabaseContract.MovieEntry.COLUMN_POSTER_PATH, movie.poster_path());
+        values.put(DatabaseContract.MovieEntry.COLUMN_POPULARITY, movie.popularity());
+        values.put(DatabaseContract.MovieEntry.COLUMN_TITLE, movie.title());
+        values.put(DatabaseContract.MovieEntry.COLUMN_AVERAGE_VOTE, movie.vote_average());
+        values.put(DatabaseContract.MovieEntry.COLUMN_VOTE_COUNT, movie.vote_count());
+        values.put(DatabaseContract.MovieEntry.COLUMN_BACKDROP_PATH, movie.backdrop_path());
+        return values;
+    }
+
+    /**
+     * Parses a cursor and returns a new movie instance
+     *
+     * @param cursor The cursor to parse.
+     * @return The movie instance
+     * @since 1.2.0 2017/04/04
+     */
+    public static Movie fromCursor(Cursor cursor) {
+        try {
+            Movie movie = Movie.builder()
+                    .setId(cursor.getLong(cursor.getColumnIndex(DatabaseContract.MovieEntry._ID)))
+                    .setTitle(cursor.getString(cursor.getColumnIndex(DatabaseContract.MovieEntry.COLUMN_TITLE)))
+                    .setOriginal_title(cursor.getString(cursor.getColumnIndex(DatabaseContract.MovieEntry.COLUMN_ORIGINAL_TITLE)))
+                    .setOriginal_language(cursor.getString(cursor.getColumnIndex(DatabaseContract.MovieEntry.COLUMN_ORIGINAL_LANGUAGE)))
+                    .setOverview(cursor.getString(cursor.getColumnIndex(DatabaseContract.MovieEntry.COLUMN_OVERVIEW)))
+                    .setRelease_date(cursor.getString(cursor.getColumnIndex(DatabaseContract.MovieEntry.COLUMN_RELEASE_DATE)))
+                    .setPoster_path(cursor.getString(cursor.getColumnIndex(DatabaseContract.MovieEntry.COLUMN_POSTER_PATH)))
+                    .setPopularity(cursor.getFloat(cursor.getColumnIndex(DatabaseContract.MovieEntry.COLUMN_POPULARITY)))
+                    .setVote_average(cursor.getFloat(cursor.getColumnIndex(DatabaseContract.MovieEntry.COLUMN_AVERAGE_VOTE)))
+                    .setBackdrop_path(cursor.getString(cursor.getColumnIndex(DatabaseContract.MovieEntry.COLUMN_BACKDROP_PATH)))
+                    .setVote_count(cursor.getInt(cursor.getColumnIndex(DatabaseContract.MovieEntry.COLUMN_VOTE_COUNT)))
+                    .build();
+
+            return movie;
+        } catch (Exception e) {
+            Timber.e(e, e.getMessage());
+            return null;
+        }
+    }
+
+    public abstract String poster_path();
 
     public abstract String overview();
 
     public abstract String release_date();
 
-    public abstract List<Integer> genre_ids();
-
-    public abstract Integer id();
+    public abstract Long id();
 
     public abstract String original_title();
 
@@ -63,11 +137,17 @@ public abstract class Movie implements Parcelable {
 
     public abstract Integer vote_count();
 
-    public abstract Boolean video();
-
     public abstract Float vote_average();
 
-    // fields used by details
+    // optional fields used by details
+    public abstract
+    @Nullable
+    Boolean adult();
+
+    public abstract
+    @Nullable
+    Boolean video();
+
     public abstract
     @Nullable
     Integer budget();
@@ -112,29 +192,9 @@ public abstract class Movie implements Parcelable {
     @Nullable
     String tagline();
 
-    public abstract @Nullable Boolean favourite();
-
-
-    /**
-     * Gets the AutoValue_Movie.Builder()
-     *
-     * @return the class Builder
-     * @since 1.2.0 2017/03/18
-     */
-    public static Movie.Builder builder() {
-        return new AutoValue_Movie.Builder();
-    }
-
-    /**
-     * Type adapter used by Gson and Dagger2 AutoValue
-     *
-     * @param gson the gson instance
-     * @return {@link TypeAdapter <Card>}
-     * @since 5.0.0 2016/12/14
-     */
-    public static TypeAdapter<Movie> typeAdapter(Gson gson) {
-        return new AutoValue_Movie.GsonTypeAdapter(gson);
-    }
+    public abstract
+    @Nullable
+    Boolean favourite();
 
     /**
      * Class Builder dagger 2 injection.
@@ -142,21 +202,19 @@ public abstract class Movie implements Parcelable {
      * Allows to create new instances of {@link Movie}
      * using this factory method.
      *
-     * @since 5.0.0 2016/12/14
+     * @since 1.2.0 2017/03/18
      */
     @AutoValue.Builder
     public abstract static class Builder {
         public abstract Movie.Builder setPoster_path(String poster_path);
 
-        public abstract Movie.Builder setAdult(Boolean adult);
+        public abstract Movie.Builder setAdult(@Nullable Boolean adult);
 
         public abstract Movie.Builder setOverview(String overview);
 
         public abstract Movie.Builder setRelease_date(String release_date);
 
-        public abstract Movie.Builder setGenre_ids(List<Integer> genre_ids);
-
-        public abstract Movie.Builder setId(Integer id);
+        public abstract Movie.Builder setId(Long id);
 
         public abstract Movie.Builder setOriginal_title(String original_title);
 
@@ -170,7 +228,7 @@ public abstract class Movie implements Parcelable {
 
         public abstract Movie.Builder setVote_count(Integer vote_count);
 
-        public abstract Movie.Builder setVideo(Boolean video);
+        public abstract Movie.Builder setVideo(@Nullable Boolean video);
 
         public abstract Movie.Builder setVote_average(Float vote_average);
 

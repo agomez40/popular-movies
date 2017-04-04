@@ -20,15 +20,14 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import com.example.android.popularmovies.injection.context.ApplicationContext;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 /**
- * Created by Beto on 18/03/2017.
+ * SQLiteOpenHelper implementation.
+ *
+ * @author Luis Alberto Gómez Rodríguez (lagomez40@gmail.com)
+ * @version 1.0.2 2017/04/04
+ * @see SQLiteOpenHelper
+ * @since 1.0.2 2017/04/04
  */
-@Singleton
 public class SQLiteHelper extends SQLiteOpenHelper {
     /**
      * Constructor
@@ -36,8 +35,7 @@ public class SQLiteHelper extends SQLiteOpenHelper {
      * @param context the application context
      * @since 5.0.0
      */
-    @Inject
-    public SQLiteHelper(@ApplicationContext Context context) {
+    public SQLiteHelper(Context context) {
         super(context, DatabaseContract.DATABASE_NAME, null, DatabaseContract.DATABASE_VERSION);
     }
 
@@ -46,7 +44,7 @@ public class SQLiteHelper extends SQLiteOpenHelper {
      */
     @Override
     public void onCreate(SQLiteDatabase db) {
-
+        db.execSQL(DatabaseContract.MovieEntry.SQL_CREATE_TABLE);
     }
 
     /**
@@ -55,6 +53,7 @@ public class SQLiteHelper extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // Re create the database
+        db.execSQL("DROP TABLE IF EXISTS " + DatabaseContract.MovieEntry.TABLE_NAME);
         onCreate(db);
     }
 }
