@@ -72,6 +72,7 @@ dependencies {
 
     //Material Support Design
     compile "com.android.support:design:$SUPPORT_LIBRARY_VERSION"
+    compile "com.android.support:customtabs:$SUPPORT_LIBRARY_VERSION"
 
     // Picasso
     compile "com.squareup.picasso:picasso:$PICASSO_VERSION"
