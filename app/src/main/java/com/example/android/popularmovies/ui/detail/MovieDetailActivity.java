@@ -16,7 +16,11 @@
 
 package com.example.android.popularmovies.ui.detail;
 
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.customtabs.CustomTabsIntent;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -24,6 +28,7 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -32,7 +37,9 @@ import com.example.android.popularmovies.data.DataManager;
 import com.example.android.popularmovies.data.model.Movie;
 import com.example.android.popularmovies.data.model.ReviewCollection;
 import com.example.android.popularmovies.data.model.TrailersCollection;
+import com.example.android.popularmovies.data.model.Video;
 import com.example.android.popularmovies.ui.base.BaseActivity;
+import com.example.android.popularmovies.ui.base.MovieTrailerAdapter;
 import com.example.android.popularmovies.ui.base.ReviewsAdapter;
 import com.example.android.popularmovies.util.ExceptionParser;
 import com.squareup.picasso.Picasso;
@@ -57,7 +64,7 @@ import static android.content.res.Configuration.ORIENTATION_PORTRAIT;
  * @see AppCompatActivity
  * @since 1.0.0 2017/02/14
  */
-public class MovieDetailActivity extends BaseActivity {
+public class MovieDetailActivity extends BaseActivity implements MovieTrailerAdapter.ItemClickListener {
 
     // ButterKnife view bindings
     @BindView(R.id.toolbar)
@@ -80,14 +87,22 @@ public class MovieDetailActivity extends BaseActivity {
     ImageView mIvMoviePoster;
     @BindView(R.id.collapsing_toolbar)
     CollapsingToolbarLayout mCollapsingToolbar;
-    ImageView mAppBarImage;
-    // The recycler view adapter
-    ReviewsAdapter mReviewsAdapter;
+
     // Injects the manager using dagger2
     @Inject
     DataManager mDataManager;
+
     // The current movie detail
     private Movie mMovie;
+
+    // App bar image
+    private ImageView mAppBarImage;
+
+    // The recycler view adapter
+    private ReviewsAdapter mReviewsAdapter;
+
+    // Trailers adapter
+    private MovieTrailerAdapter mMovieTrailerAdapter;
 
     /**
      * {@inheritDoc}
@@ -154,16 +169,16 @@ public class MovieDetailActivity extends BaseActivity {
         mTvReleaseDate.setText(movie.release_date());
 
         // Load the movie trailers
-        // getMovieTrailers(movie);
+        getMovieTrailers(movie);
 
-        mPagerTrailers.setLayoutManager(new
+        mMovieTrailerAdapter = new MovieTrailerAdapter(this, this);
 
-                LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        mPagerTrailers.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         mPagerTrailers.setHasFixedSize(true);
         mPagerTrailers.setItemAnimator(new DefaultItemAnimator());
         mPagerTrailers.setFocusable(false);
+        mPagerTrailers.setAdapter(mMovieTrailerAdapter);
 
-        // TODO set the adapter
         // Load the movie reviews
         getMovieReviews(movie);
 
@@ -183,6 +198,20 @@ public class MovieDetailActivity extends BaseActivity {
         }
     }
 
+    /**
+     * Bind a method to an {@link View.OnClickListener OnClickListener} on the view for each ID specified.
+     * <pre><code>
+     * {@literal @}OnClick(R.id.example) void onClick() {
+     *   Toast.makeText(this, "Clicked!", Toast.LENGTH_SHORT).show();
+     * }
+     * </code></pre>
+     * Any number of parameters from
+     * {@link View.OnClickListener#onClick(android.view.View) onClick} may be used on the
+     * method.
+     *
+     * @see View.OnClickListener
+     * @since 1.0.0 2017/02/14
+     */
     @OnClick(R.id.fab_movie_detail)
     public void onViewClicked() {
         // add it to the favourites database
@@ -209,8 +238,8 @@ public class MovieDetailActivity extends BaseActivity {
                     @Override
                     public void onNext(TrailersCollection value) {
                         Timber.i("Get Trailers DisposableObserver onNext.");
-                        // TODO set the adapter data
-
+                        // set the adapter data
+                        mMovieTrailerAdapter.setVideos(value.results());
                     }
 
                     @Override
@@ -264,6 +293,23 @@ public class MovieDetailActivity extends BaseActivity {
                     });
         } catch (Exception e) {
             Timber.e(e, e.getMessage());
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onVideoClick(Video video) {
+        Intent appIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + video.key()));
+
+        try {
+            startActivity(appIntent);
+        } catch (ActivityNotFoundException ex) {
+            CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
+            builder.setToolbarColor(getResources().getColor(R.color.colorPrimary));
+            CustomTabsIntent customTabsIntent = builder.build();
+            customTabsIntent.launchUrl(this, Uri.parse("http://www.youtube.com/watch?v=" + video.key()));
         }
     }
 }
