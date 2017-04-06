@@ -217,18 +217,22 @@ public class DataManager {
      * @since 1.2.0 2017/03/18
      */
     public boolean isFavorite(Movie movie) {
-        boolean favorite = false;
-        Cursor cursor = mContext.getContentResolver().query(
-                DatabaseContract.MovieEntry.CONTENT_URI,
-                null,
-                DatabaseContract.MovieEntry._ID + " = " + movie.id(),
-                null,
-                null
-        );
-        if (cursor != null) {
-            favorite = cursor.getCount() != 0;
-            cursor.close();
+        if(movie != null) {
+            boolean favorite = false;
+            Cursor cursor = mContext.getContentResolver().query(
+                    DatabaseContract.MovieEntry.CONTENT_URI,
+                    null,
+                    DatabaseContract.MovieEntry._ID + " = " + movie.id(),
+                    null,
+                    null
+            );
+            if (cursor != null) {
+                favorite = cursor.getCount() != 0;
+                cursor.close();
+            }
+            return favorite;
+        } else {
+            return false;
         }
-        return favorite;
     }
 }

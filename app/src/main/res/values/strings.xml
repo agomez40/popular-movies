@@ -43,4 +43,7 @@
     <string name="label_trailers">Trailers</string>
     <string name="label_reviews">Reviews</string>
     <string name="label_view_detail">View more</string>
+
+    <string name="message_movie_added">The movie has been added to the favourites.</string>
+    <string name="message_movie_removed">The movie has been removed from your favourites.</string>
 </resources>

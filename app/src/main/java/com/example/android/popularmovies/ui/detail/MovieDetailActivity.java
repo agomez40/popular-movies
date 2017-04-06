@@ -59,6 +59,8 @@ import timber.log.Timber;
 import static android.content.res.Configuration.ORIENTATION_PORTRAIT;
 
 /**
+ * Phone only activity, displays the movie details.
+ *
  * @author Luis Alberto Gómez Rodríguez (alberto.gomez@cargomovil.com)
  * @version 1.0.1 2017/02/19
  * @see AppCompatActivity
@@ -129,7 +131,7 @@ public class MovieDetailActivity extends BaseActivity implements MovieTrailerAda
 
         // Get the extras and set the movie title
         if (!getIntent().getExtras().isEmpty()) {
-            mMovie = getIntent().getParcelableExtra("movie");
+            mMovie = getIntent().getParcelableExtra(Movie.class.getSimpleName());
             initUI(mMovie);
         }
     }

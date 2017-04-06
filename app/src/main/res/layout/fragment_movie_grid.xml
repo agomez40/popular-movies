@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- The main GridView, shows the movie posters -->
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/gv_movies"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"/>
+
+    <!-- Progress bar to indicate the user that the movies are being loaded -->
+    <ProgressBar
+        android:id="@+id/pb_loading_movies"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone" />
+
+    <!-- Custom error view to show error messages like no network or results found -->
+    <com.example.android.popularmovies.ui.core.ErrorView
+        android:id="@+id/ev_popular_movies"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:visibility="gone" />
+</FrameLayout>

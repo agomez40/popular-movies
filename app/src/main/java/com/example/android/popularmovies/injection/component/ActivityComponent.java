@@ -18,6 +18,8 @@ package com.example.android.popularmovies.injection.component;
 
 import com.example.android.popularmovies.injection.module.ActivityModule;
 import com.example.android.popularmovies.ui.detail.MovieDetailActivity;
+import com.example.android.popularmovies.ui.movies.MovieDetailFragment;
+import com.example.android.popularmovies.ui.movies.MovieGridFragment;
 import com.example.android.popularmovies.ui.movies.MoviesActivity;
 
 import dagger.Subcomponent;
@@ -36,4 +38,8 @@ public interface ActivityComponent {
     void inject(MoviesActivity moviesActivity);
 
     void inject(MovieDetailActivity movieDetailActivity);
+
+    void injectFragment(MovieDetailFragment movieDetailFragment);
+
+    void injectFragment(MovieGridFragment movieGridFragment);
 }

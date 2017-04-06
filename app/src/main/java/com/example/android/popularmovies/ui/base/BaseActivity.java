@@ -10,6 +10,8 @@ import com.example.android.popularmovies.injection.component.ConfigComponent;
 import com.example.android.popularmovies.injection.component.DaggerConfigComponent;
 import com.example.android.popularmovies.injection.module.ActivityModule;
 
+import icepick.Icepick;
+
 /**
  * Abstract activity that every other Activity in this application must implement. It handles
  * creation of Dagger components and makes sure that instances of ConfigPersistentComponent survive
@@ -27,6 +29,9 @@ public class BaseActivity extends AppCompatActivity {
      */
     private ActivityComponent mActivityComponent;
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,6 +41,17 @@ public class BaseActivity extends AppCompatActivity {
                 .applicationComponent(PopularMoviesApp.getApplication(this).getComponent())
                 .build();
         mActivityComponent = configComponent.activityComponent(new ActivityModule(this));
+
+        Icepick.restoreInstanceState(this, savedInstanceState);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        Icepick.saveInstanceState(this, outState);
     }
 
     /**

@@ -17,40 +17,35 @@
 package com.example.android.popularmovies.ui.movies;
 
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
+import android.support.constraint.ConstraintLayout;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ProgressBar;
 
 import com.example.android.popularmovies.R;
 import com.example.android.popularmovies.data.DataManager;
 import com.example.android.popularmovies.data.model.Movie;
-import com.example.android.popularmovies.data.model.MovieCollection;
 import com.example.android.popularmovies.ui.base.BaseActivity;
-import com.example.android.popularmovies.ui.base.MoviesAdapter;
-import com.example.android.popularmovies.ui.core.ErrorView;
+import com.example.android.popularmovies.ui.core.Constants;
 import com.example.android.popularmovies.ui.detail.MovieDetailActivity;
-import com.example.android.popularmovies.util.ExceptionParser;
-import com.example.android.popularmovies.util.ViewUtil;
-
-import java.util.List;
 
 import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.observers.DisposableObserver;
-import io.reactivex.schedulers.Schedulers;
-import timber.log.Timber;
+import butterknife.OnClick;
+import butterknife.Optional;
+import icepick.Bundler;
+import icepick.State;
 
 /**
  * @author Luis Alberto Gómez Rodríguez (lagomez40@gmail.com)
@@ -58,60 +53,51 @@ import timber.log.Timber;
  * @see AppCompatActivity
  * @since 1.0.0 2017/02/09
  */
-public class MoviesActivity extends BaseActivity implements MoviesAdapter.MovieItemClickListener,
-        ErrorView.ErrorViewListener {
+public class MoviesActivity extends BaseActivity implements MovieGridFragment.OnFragmentInteractionListener,
+        MovieDetailFragment.OnFragmentInteractionListener {
 
-    /**
-     * Sort by most popular flag
-     */
-    public final static short SORT_MOST_POPULAR = 1;
-    /**
-     * Sort by top rated flag
-     */
-    public final static short SORT_TOP_RATED = 2;
-    /**
-     * Sort by favourites
-     */
-    public final static short FAVOURITES = 3;
     // ButterKnife bindings
     @BindView(R.id.toolbar)
     Toolbar mToolbar;
-    @BindView(R.id.gv_movies)
-    RecyclerView mRvMovies;
-    @BindView(R.id.pb_loading_movies)
-    ProgressBar mPbLoadingMovies;
-    @BindView(R.id.ev_popular_movies)
-    ErrorView mEvPopularMovies;
+
+    @Nullable
+    @BindView(R.id.fml_movie_detail)
+    NestedScrollView mFmlMovieDetail;
+
+    @Nullable
+    @BindView(R.id.fba_favourite)
+    FloatingActionButton mFbaFavourite;
+
+    @Nullable
+    @BindView(R.id.constraint_layout)
+    ConstraintLayout mConstraintLayout;
+
     @Inject
     DataManager mDataManager;
+
     /**
      * Indicates the current sort option
      * 1. Sort by Most Popular
      * 2. Sort by Top Rated
      * 3. Sort by favourites
      */
-    private short mSort = 0;
-    /**
-     * The page to fetch from the API
-     * defaults to 1
-     */
-    private int mPage = 1;
+    @State
+    short mSort = Constants.FAVOURITES;
+
     /**
      * Two panel design screen for tablets flag
      */
-    private boolean mTwoPane;
+    @State
+    boolean mTwoPane;
+
     /**
-     * The GridView adapter
+     * The current movie to show (only for tablets)
      */
-    private MoviesAdapter mMoviesAdapter;
-    /**
-     * The current movie collection to display
-     */
-    private MovieCollection mMovieCollection;
-    /**
-     * RxJava subscription to fetch data
-     */
-    private Disposable mDisposableSubscription;
+    @State(CustomBundler.class)
+    Movie mSelectedMovie = null;
+
+    private MovieGridFragment mMovieGridFragment;
+    private MovieDetailFragment mMovieDetailFragment;
 
     /**
      * {@inheritDoc}
@@ -131,41 +117,34 @@ public class MoviesActivity extends BaseActivity implements MoviesAdapter.MovieI
             getSupportActionBar().setTitle(R.string.app_name);
         }
 
-        mEvPopularMovies.setErrorViewListener(this);
+        // check if twoPane mode is required
+        mTwoPane = mFmlMovieDetail != null;
 
-        // Config the grid
-        RecyclerView.LayoutManager layoutManager = ViewUtil.configGridLayout(this);
-        mRvMovies.setLayoutManager(layoutManager);
+        if (mTwoPane && mSelectedMovie == null) {
+            // Hide the view
+            mFmlMovieDetail.setVisibility(View.GONE);
 
-        mMoviesAdapter = new MoviesAdapter(this, this);
-        mRvMovies.setAdapter(mMoviesAdapter);
-
-        if (savedInstanceState != null) {
-            mSort = savedInstanceState.getShort("sort");
-
-            mMovieCollection = savedInstanceState.getParcelable("movieCollection");
-
-            if (mMovieCollection != null) {
-                setAdapterData(mMovieCollection.results());
-            }
-        } else {
-            // Fetch the movies from the network
-            getMovies(SORT_MOST_POPULAR);
+            // TODO show a friendly view to indicate the user why the movies are empty
         }
-    }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void onSaveInstanceState(Bundle savedInstanceState) {
-        // Save UI state changes to the savedInstanceState.
-        // This bundle will be passed to onCreate if the process is
-        // killed and restarted.
-        savedInstanceState.putShort("sort", mSort);
-        savedInstanceState.putParcelable("movieCollection", mMovieCollection);
+        // Add the grid fragment
+        mMovieGridFragment = MovieGridFragment.newInstance(this);
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, mMovieGridFragment, MovieGridFragment.TAG)
+                .commit();
 
-        super.onSaveInstanceState(savedInstanceState);
+        // Add the detail fragment (tablet)
+        if (mFmlMovieDetail != null) {
+            mMovieDetailFragment = MovieDetailFragment.newInstance(this);
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragment_detail_container, mMovieDetailFragment, MovieDetailFragment.TAG)
+                    .commit();
+        }
+
+        // Sets the FAB button
+        configFab();
     }
 
     /**
@@ -179,6 +158,14 @@ public class MoviesActivity extends BaseActivity implements MoviesAdapter.MovieI
         return super.onCreateOptionsMenu(menu);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (mMovieGridFragment != null) {
+            mMovieGridFragment.loadMovies(mSort);
+        }
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -187,169 +174,100 @@ public class MoviesActivity extends BaseActivity implements MoviesAdapter.MovieI
 
         switch (item.getItemId()) {
             case R.id.action_order_by_most_popular:
-                getMovies(SORT_MOST_POPULAR);
+                mSort = Constants.SORT_MOST_POPULAR;
                 break;
             case R.id.action_order_by_top_rated:
-                getMovies(SORT_TOP_RATED);
+                mSort = Constants.SORT_TOP_RATED;
                 break;
             case R.id.action_show_favourites:
-                getMovies(FAVOURITES);
+                mSort = Constants.FAVOURITES;
                 break;
             default:
+                mSort = Constants.FAVOURITES;
                 break;
         }
+
+        // Load the movies
+        mMovieGridFragment.loadMovies(mSort);
+
         return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        // Due to a bug on the grid redraw recreate the adapter
-        mMoviesAdapter = new MoviesAdapter(this, this);
-        mRvMovies.setAdapter(mMoviesAdapter);
+    @Optional
+    @OnClick(R.id.fba_favourite)
+    public void onFabClick() {
+        //  store the movie using the content provider
+        if (mSelectedMovie != null) {
+            if (mDataManager.isFavorite(mSelectedMovie)) {
+                mDataManager.addMovieToFavourites(mSelectedMovie);
+                // show snackbar
+                Snackbar.make(mConstraintLayout, getString(R.string.message_movie_added), Snackbar.LENGTH_LONG).show();
+            } else {
+                mDataManager.removeFavourite(mSelectedMovie);
+                // show snackbar
+                Snackbar.make(mConstraintLayout, getString(R.string.message_movie_removed), Snackbar.LENGTH_LONG).show();
+            }
 
-        // Config the grid
-        RecyclerView.LayoutManager layoutManager = ViewUtil.configGridLayout(this);
-        mRvMovies.setLayoutManager(layoutManager);
-
-        // XXX should get this from the bundle
-        getMovies(mSort);
+            // Change the fab icon
+            configFab();
+        }
     }
 
     /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void onRetryClick() {
-        // retry the action on error, fetch the movies
-        mEvPopularMovies.setVisibility(View.GONE);
-
-        getMovies(mSort);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void onMovieClick(Movie movie) {
-        // Forward to the Detail activity and pass the movie detail
-        Intent intent = new Intent(this, MovieDetailActivity.class);
-        intent.putExtra("movie", movie);
-        startActivity(intent);
-    }
-
-    /**
-     * Shows or hides the progress indicator
      *
-     * @param show {@literal true} to show the progress indicatior, otherwise {@literal false}
-     * @since 1.0.0 2017/02/12
      */
-    private void showProgressIndicator(boolean show) {
-        if (show) {
-            // Hide the error view and the grid view
-            mRvMovies.setVisibility(View.GONE);
-            mEvPopularMovies.setVisibility(View.GONE);
-            mPbLoadingMovies.setVisibility(View.VISIBLE);
+    private void configFab() {
+        if (mFbaFavourite != null && mTwoPane && mSelectedMovie != null) {
+            if (mDataManager.isFavorite(mSelectedMovie)) {
+                mFbaFavourite.setImageResource(R.drawable.vector_ic_favorite);
+            } else {
+                mFbaFavourite.setImageResource(R.drawable.vector_ic_favorite_border);
+            }
         } else {
-            mRvMovies.setVisibility(View.VISIBLE);
-            mPbLoadingMovies.setVisibility(View.GONE);
-            mEvPopularMovies.setVisibility(View.GONE);
+            mFmlMovieDetail.setVisibility(View.GONE);
+            mFbaFavourite.setVisibility(View.GONE);
         }
     }
 
-    /**
-     * Shows the error view with the provided string message
-     *
-     * @param stringId the resource string
-     * @since 1.0.0 2017/02/13
-     */
-    private void showError(@StringRes int stringId) {
-        mRvMovies.setVisibility(View.GONE);
-        mPbLoadingMovies.setVisibility(View.GONE);
-
-        mEvPopularMovies.setErrorMessage(getString(stringId));
-        mEvPopularMovies.setVisibility(View.VISIBLE);
+    @Override
+    public void onEmptyResult() {
+        // Fallback to a network resource
+        mSort = Constants.SORT_MOST_POPULAR;
+        mMovieGridFragment.loadMovies(Constants.SORT_MOST_POPULAR);
     }
 
-    /**
-     * TODO implement infinite scroll
-     *
-     * @param sort The sorting option
-     * @since 1.0.0 2017/02/18
-     */
-    private void getMovies(short sort) {
-        if (mDisposableSubscription != null) {
-            mDisposableSubscription.dispose();
-        }
-
-        showProgressIndicator(true);
-
-        switch (sort) {
-            case SORT_MOST_POPULAR:
-                mDisposableSubscription = mDataManager.getPopularMovies(mPage, null)
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeOn(Schedulers.io())
-                        .subscribeWith(newDisposableObserver());
-                break;
-            case SORT_TOP_RATED:
-                mDisposableSubscription = mDataManager.getTopRatedMovies(mPage, null)
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeOn(Schedulers.io())
-                        .subscribeWith(newDisposableObserver());
-                break;
-            case FAVOURITES:
-                mDisposableSubscription = mDataManager.getFavourites(mPage)
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeOn(Schedulers.io())
-                        .subscribeWith(newDisposableObserver());
-                break;
-            default:
-                mDisposableSubscription = mDataManager.getPopularMovies(mPage, null)
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeOn(Schedulers.io())
-                        .subscribeWith(newDisposableObserver());
-                break;
+    @Override
+    public void onMovieSelected(Movie movie) {
+        // show the detail fragment or go to the detail activity
+        mSelectedMovie = movie;
+        if (mTwoPane && mMovieDetailFragment != null) {
+            mFmlMovieDetail.setVisibility(View.VISIBLE);
+            mFbaFavourite.setVisibility(View.VISIBLE);
+            mMovieDetailFragment.setMovie(movie);
+        } else {
+            Intent intent = new Intent(this, MovieDetailActivity.class);
+            intent.putExtra(Movie.class.getSimpleName(), movie);
+            startActivity(intent);
         }
     }
 
-    /**
-     * @return
-     */
-    private DisposableObserver<MovieCollection> newDisposableObserver() {
-        return new DisposableObserver<MovieCollection>() {
-            @Override
-            public void onNext(MovieCollection value) {
-                Timber.i("Get Movies DisposableObserver onNext.");
-                setAdapterData(value.results());
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                Timber.e(e, e.getMessage());
-
-                // Parse the error to show a user friendly message
-                int errorStringId = ExceptionParser.parseException((Exception) e);
-                showError(errorStringId);
-            }
-
-            @Override
-            public void onComplete() {
-                Timber.i("Get Popular Movies DisposableObserver completed.");
-            }
-        };
+    @Override
+    public void onMoviesLoadError(@StringRes int stringId) {
+        // TODO Show a message
     }
 
     /**
-     * @param
+     * Icepick custom bundler to parcel objects
      */
-    private void setAdapterData(List<Movie> movies) {
-        // TODO If no data is present show a view asking the user to add favourite movies
-        if (movies.size() > 0) {
-            mMoviesAdapter.setMovies(movies);
-            showProgressIndicator(false);
+    public static class CustomBundler implements Bundler<Movie> {
+        @Override
+        public void put(String key, Movie value, Bundle bundle) {
+            bundle.putParcelable(key, value);
+        }
+
+        @Override
+        public Movie get(String key, Bundle bundle) {
+            return bundle.getParcelable(key);
         }
     }
 }

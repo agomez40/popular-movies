@@ -121,7 +121,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesView
      */
     @Override
     public int getItemCount() {
-        return mMovies.size();
+        return mMovies != null ? mMovies.size() : 0;
     }
 
     /**
