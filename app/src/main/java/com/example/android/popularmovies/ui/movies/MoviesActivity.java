@@ -141,10 +141,10 @@ public class MoviesActivity extends BaseActivity implements MovieGridFragment.On
                     .beginTransaction()
                     .replace(R.id.fragment_detail_container, mMovieDetailFragment, MovieDetailFragment.TAG)
                     .commit();
-        }
 
-        // Sets the FAB button
-        configFab();
+            // Sets the FAB button
+            configFab();
+        }
     }
 
     /**
