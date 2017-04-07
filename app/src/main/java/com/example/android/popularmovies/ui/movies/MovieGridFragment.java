@@ -1,3 +1,19 @@
+/*
+ * Copyright 2017 Luis Alberto Gómez Rodríguez
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.example.android.popularmovies.ui.movies;
 
 import android.content.Context;
@@ -20,7 +36,6 @@ import com.example.android.popularmovies.ui.base.BaseFragment;
 import com.example.android.popularmovies.ui.base.MoviesAdapter;
 import com.example.android.popularmovies.ui.core.Constants;
 import com.example.android.popularmovies.ui.core.ErrorView;
-import com.example.android.popularmovies.util.ExceptionParser;
 import com.example.android.popularmovies.util.ViewUtil;
 
 import java.util.List;
@@ -63,7 +78,19 @@ public class MovieGridFragment extends BaseFragment implements MoviesAdapter.Mov
      */
     @Inject
     DataManager mDataManager;
-
+    /**
+     * The current movie collection to display
+     */
+    @State(CustomBundler.class)
+    MovieCollection mMovieCollection;
+    /**
+     * The page to fetch from the API
+     * defaults to 1
+     */
+    @State
+    int mPage = 1;
+    @State
+    short mSort = Constants.FAVOURITES;
     /**
      * The GridView adapter
      */
@@ -72,24 +99,7 @@ public class MovieGridFragment extends BaseFragment implements MoviesAdapter.Mov
      * RxJava subscription to fetch data
      */
     private Disposable mDisposableSubscription;
-
     private OnFragmentInteractionListener mListener;
-
-    /**
-     * The current movie collection to display
-     */
-    @State(CustomBundler.class)
-    MovieCollection mMovieCollection;
-
-    /**
-     * The page to fetch from the API
-     * defaults to 1
-     */
-    @State
-    int mPage = 1;
-
-    @State
-    short mSort = Constants.FAVOURITES;
 
     /**
      *
@@ -108,24 +118,6 @@ public class MovieGridFragment extends BaseFragment implements MoviesAdapter.Mov
         MovieGridFragment movieGridFragment = new MovieGridFragment();
         movieGridFragment.mListener = listener;
         return movieGridFragment;
-    }
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    interface OnFragmentInteractionListener {
-        void onEmptyResult();
-
-        void onMovieSelected(Movie movie);
-
-        void onMoviesLoadError(@StringRes int stringId);
     }
 
     @Override
@@ -263,12 +255,9 @@ public class MovieGridFragment extends BaseFragment implements MoviesAdapter.Mov
             public void onError(Throwable e) {
                 Timber.e(e, e.getMessage());
 
-                // Parse the error to show a user friendly message
-                int errorStringId = ExceptionParser.parseException((Exception) e);
-
                 showProgressIndicator(false);
                 if (mListener != null) {
-                    mListener.onMoviesLoadError(errorStringId);
+                    mListener.onMoviesLoadError(R.string.error_no_network);
                 }
             }
 
@@ -306,6 +295,24 @@ public class MovieGridFragment extends BaseFragment implements MoviesAdapter.Mov
             mRvMovies.setVisibility(View.VISIBLE);
             mPbLoadingMovies.setVisibility(View.GONE);
         }
+    }
+
+    /**
+     * This interface must be implemented by activities that contain this
+     * fragment to allow an interaction in this fragment to be communicated
+     * to the activity and potentially other fragments contained in that
+     * activity.
+     * <p>
+     * See the Android Training lesson <a href=
+     * "http://developer.android.com/training/basics/fragments/communicating.html"
+     * >Communicating with Other Fragments</a> for more information.
+     */
+    interface OnFragmentInteractionListener {
+        void onEmptyResult();
+
+        void onMovieSelected(Movie movie);
+
+        void onMoviesLoadError(@StringRes int stringId);
     }
 
     /**

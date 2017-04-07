@@ -15,9 +15,9 @@
   -->
 
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/constraint_layout"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/constraint_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -64,7 +64,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.3"
-        tools:layout_editor_absoluteX="384dp"
+        tools:layout_editor_absoluteX="240dp"
         tools:layout_editor_absoluteY="0dp" />
 
     <!-- Container for the movie detail -->
@@ -72,22 +72,39 @@
         android:id="@+id/fml_movie_detail"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:fillViewport="true"
         android:layout_marginEnd="@dimen/constraint_margin"
         android:layout_marginLeft="@dimen/constraint_margin"
         android:layout_marginRight="@dimen/constraint_margin"
         android:layout_marginStart="@dimen/constraint_margin"
+        android:fillViewport="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintLeft_toLeftOf="@+id/guideline_movie_grid"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/appbar"
         app:layout_constraintVertical_bias="0.0">
+
         <FrameLayout
             android:id="@+id/fragment_detail_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
     </android.support.v4.widget.NestedScrollView>
+
+    <com.example.android.popularmovies.ui.core.ErrorView
+        android:id="@+id/errorView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="0dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/fml_movie_detail"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintLeft_toLeftOf="@+id/fml_movie_detail"
+        app:layout_constraintRight_toRightOf="@+id/fml_movie_detail"
+        app:layout_constraintTop_toTopOf="@+id/fml_movie_detail"
+        app:layout_constraintVertical_bias="0.0" />
 
     <!-- Container for the movies grid -->
     <android.support.v4.widget.NestedScrollView
@@ -103,6 +120,7 @@
         app:layout_constraintRight_toLeftOf="@+id/guideline_movie_grid"
         app:layout_constraintTop_toBottomOf="@+id/appbar"
         app:layout_constraintVertical_bias="0.0">
+
         <FrameLayout
             android:id="@+id/fragment_container"
             android:layout_width="match_parent"

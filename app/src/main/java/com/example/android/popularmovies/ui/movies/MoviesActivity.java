@@ -40,6 +40,7 @@ import com.example.android.popularmovies.data.model.Movie;
 import com.example.android.popularmovies.data.model.Video;
 import com.example.android.popularmovies.ui.base.BaseActivity;
 import com.example.android.popularmovies.ui.core.Constants;
+import com.example.android.popularmovies.ui.core.ErrorView;
 import com.example.android.popularmovies.ui.detail.MovieDetailActivity;
 
 import javax.inject.Inject;
@@ -63,6 +64,8 @@ public class MoviesActivity extends BaseActivity implements MovieGridFragment.On
     // ButterKnife bindings
     @BindView(R.id.toolbar)
     Toolbar mToolbar;
+    @BindView(R.id.errorView)
+    ErrorView mErrorView;
 
     @Nullable
     @BindView(R.id.fml_movie_detail)
@@ -128,7 +131,9 @@ public class MoviesActivity extends BaseActivity implements MovieGridFragment.On
             // Hide the view
             mFmlMovieDetail.setVisibility(View.GONE);
 
-            // TODO show a friendly view to indicate the user why the movies are empty
+            // show a friendly view to indicate the user why the movies are empty
+            mErrorView.setErrorMessage(getString(R.string.message_select_movie));
+            mErrorView.setVisibility(View.VISIBLE);
         }
 
         // Add the grid fragment
@@ -219,10 +224,10 @@ public class MoviesActivity extends BaseActivity implements MovieGridFragment.On
         // show the detail fragment or go to the detail activity
         mSelectedMovie = movie;
         if (mTwoPane && mMovieDetailFragment != null) {
+            mErrorView.setVisibility(View.GONE);
             mFmlMovieDetail.setVisibility(View.VISIBLE);
             mFbaFavourite.setVisibility(View.VISIBLE);
             mMovieDetailFragment.setMovie(movie);
-
             configFab();
         } else {
             Intent intent = new Intent(this, MovieDetailActivity.class);
@@ -236,7 +241,8 @@ public class MoviesActivity extends BaseActivity implements MovieGridFragment.On
      */
     @Override
     public void onMoviesLoadError(@StringRes int stringId) {
-        // TODO Show a message
+        // Show a message
+        mErrorView.setVisibility(View.VISIBLE);
     }
 
     /**

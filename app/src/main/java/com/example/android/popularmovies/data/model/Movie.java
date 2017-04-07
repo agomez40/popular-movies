@@ -96,7 +96,7 @@ public abstract class Movie implements Parcelable {
      */
     public static Movie fromCursor(Cursor cursor) {
         try {
-            Movie movie = Movie.builder()
+            return Movie.builder()
                     .setId(cursor.getLong(cursor.getColumnIndex(DatabaseContract.MovieEntry._ID)))
                     .setTitle(cursor.getString(cursor.getColumnIndex(DatabaseContract.MovieEntry.COLUMN_TITLE)))
                     .setOriginal_title(cursor.getString(cursor.getColumnIndex(DatabaseContract.MovieEntry.COLUMN_ORIGINAL_TITLE)))
@@ -109,8 +109,6 @@ public abstract class Movie implements Parcelable {
                     .setBackdrop_path(cursor.getString(cursor.getColumnIndex(DatabaseContract.MovieEntry.COLUMN_BACKDROP_PATH)))
                     .setVote_count(cursor.getInt(cursor.getColumnIndex(DatabaseContract.MovieEntry.COLUMN_VOTE_COUNT)))
                     .build();
-
-            return movie;
         } catch (Exception e) {
             Timber.e(e, e.getMessage());
             return null;
