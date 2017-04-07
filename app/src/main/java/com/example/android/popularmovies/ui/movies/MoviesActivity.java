@@ -24,6 +24,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.constraint.ConstraintLayout;
 import android.support.customtabs.CustomTabsIntent;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.NestedScrollView;
@@ -78,6 +79,10 @@ public class MoviesActivity extends BaseActivity implements MovieGridFragment.On
     @Nullable
     @BindView(R.id.constraint_layout)
     ConstraintLayout mConstraintLayout;
+
+    @Nullable
+    @BindView(R.id.coordinator_layout)
+    CoordinatorLayout mCoordinatorLayout;
 
     @Inject
     DataManager mDataManager;
@@ -210,8 +215,15 @@ public class MoviesActivity extends BaseActivity implements MovieGridFragment.On
      */
     @Override
     public void onEmptyResult() {
-        // Fallback to a network resource
-        Snackbar.make(mConstraintLayout, getString(R.string.message_no_favourites), Snackbar.LENGTH_LONG).show();
+        // Fallback to a network resource(
+        if (mConstraintLayout != null) {
+            Snackbar.make(mConstraintLayout, getString(R.string.message_no_favourites), Snackbar.LENGTH_LONG).show();
+        }
+
+        if (mCoordinatorLayout != null) {
+            Snackbar.make(mCoordinatorLayout, getString(R.string.message_no_favourites), Snackbar.LENGTH_LONG).show();
+        }
+
         mSort = Constants.SORT_MOST_POPULAR;
         mMovieGridFragment.loadMovies(Constants.SORT_MOST_POPULAR);
     }

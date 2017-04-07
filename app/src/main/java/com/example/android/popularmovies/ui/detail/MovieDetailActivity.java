@@ -20,9 +20,9 @@ import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.constraint.ConstraintLayout;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -91,8 +91,8 @@ public class MovieDetailActivity extends BaseActivity implements MovieTrailerAda
     ImageView mIvMoviePoster;
     @BindView(R.id.collapsing_toolbar)
     CollapsingToolbarLayout mCollapsingToolbar;
-    @BindView(R.id.constraint_layout)
-    ConstraintLayout mConstraintLayout;
+    @BindView(R.id.coordinator_layout)
+    CoordinatorLayout mCoordinatorLayout;
     @BindView(R.id.cv_reviews)
     CardView mCvReviews;
     @BindView(R.id.cv_trailers)
@@ -228,11 +228,11 @@ public class MovieDetailActivity extends BaseActivity implements MovieTrailerAda
         if (!mDataManager.isFavorite(mMovie)) {
             mDataManager.addMovieToFavourites(mMovie);
             mFabMovieDetail.setImageResource(R.drawable.vector_ic_favorite);
-            Snackbar.make(mConstraintLayout, getString(R.string.message_movie_added), Snackbar.LENGTH_LONG).show();
+            Snackbar.make(mCoordinatorLayout, getString(R.string.message_movie_added), Snackbar.LENGTH_LONG).show();
         } else {
             mDataManager.removeFavourite(mMovie);
             mFabMovieDetail.setImageResource(R.drawable.vector_ic_favorite_border);
-            Snackbar.make(mConstraintLayout, getString(R.string.message_movie_removed), Snackbar.LENGTH_LONG).show();
+            Snackbar.make(mCoordinatorLayout, getString(R.string.message_movie_removed), Snackbar.LENGTH_LONG).show();
         }
     }
 
