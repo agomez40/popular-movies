@@ -16,11 +16,14 @@
 
 package com.example.android.popularmovies.ui.movies;
 
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.constraint.ConstraintLayout;
+import android.support.customtabs.CustomTabsIntent;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.NestedScrollView;
@@ -34,6 +37,7 @@ import android.view.View;
 import com.example.android.popularmovies.R;
 import com.example.android.popularmovies.data.DataManager;
 import com.example.android.popularmovies.data.model.Movie;
+import com.example.android.popularmovies.data.model.Video;
 import com.example.android.popularmovies.ui.base.BaseActivity;
 import com.example.android.popularmovies.ui.core.Constants;
 import com.example.android.popularmovies.ui.detail.MovieDetailActivity;
@@ -158,6 +162,9 @@ public class MoviesActivity extends BaseActivity implements MovieGridFragment.On
         return super.onCreateOptionsMenu(menu);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void onResume() {
         super.onResume();
@@ -193,12 +200,68 @@ public class MoviesActivity extends BaseActivity implements MovieGridFragment.On
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onEmptyResult() {
+        // Fallback to a network resource
+        Snackbar.make(mConstraintLayout, getString(R.string.message_no_favourites), Snackbar.LENGTH_LONG).show();
+        mSort = Constants.SORT_MOST_POPULAR;
+        mMovieGridFragment.loadMovies(Constants.SORT_MOST_POPULAR);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onMovieSelected(Movie movie) {
+        // show the detail fragment or go to the detail activity
+        mSelectedMovie = movie;
+        if (mTwoPane && mMovieDetailFragment != null) {
+            mFmlMovieDetail.setVisibility(View.VISIBLE);
+            mFbaFavourite.setVisibility(View.VISIBLE);
+            mMovieDetailFragment.setMovie(movie);
+
+            configFab();
+        } else {
+            Intent intent = new Intent(this, MovieDetailActivity.class);
+            intent.putExtra(Movie.class.getSimpleName(), movie);
+            startActivity(intent);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onMoviesLoadError(@StringRes int stringId) {
+        // TODO Show a message
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void playYoutubeVideo(Video video) {
+        Intent appIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + video.key()));
+
+        try {
+            startActivity(appIntent);
+        } catch (ActivityNotFoundException ex) {
+            CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
+            builder.setToolbarColor(getResources().getColor(R.color.colorPrimary));
+            CustomTabsIntent customTabsIntent = builder.build();
+            customTabsIntent.launchUrl(this, Uri.parse("http://www.youtube.com/watch?v=" + video.key()));
+        }
+    }
+
     @Optional
     @OnClick(R.id.fba_favourite)
     public void onFabClick() {
         //  store the movie using the content provider
         if (mSelectedMovie != null) {
-            if (mDataManager.isFavorite(mSelectedMovie)) {
+            if (!mDataManager.isFavorite(mSelectedMovie)) {
                 mDataManager.addMovieToFavourites(mSelectedMovie);
                 // show snackbar
                 Snackbar.make(mConstraintLayout, getString(R.string.message_movie_added), Snackbar.LENGTH_LONG).show();
@@ -207,6 +270,9 @@ public class MoviesActivity extends BaseActivity implements MovieGridFragment.On
                 // show snackbar
                 Snackbar.make(mConstraintLayout, getString(R.string.message_movie_removed), Snackbar.LENGTH_LONG).show();
             }
+
+            // refresh data grid
+            mMovieGridFragment.loadMovies(Constants.FAVOURITES);
 
             // Change the fab icon
             configFab();
@@ -227,33 +293,6 @@ public class MoviesActivity extends BaseActivity implements MovieGridFragment.On
             mFmlMovieDetail.setVisibility(View.GONE);
             mFbaFavourite.setVisibility(View.GONE);
         }
-    }
-
-    @Override
-    public void onEmptyResult() {
-        // Fallback to a network resource
-        mSort = Constants.SORT_MOST_POPULAR;
-        mMovieGridFragment.loadMovies(Constants.SORT_MOST_POPULAR);
-    }
-
-    @Override
-    public void onMovieSelected(Movie movie) {
-        // show the detail fragment or go to the detail activity
-        mSelectedMovie = movie;
-        if (mTwoPane && mMovieDetailFragment != null) {
-            mFmlMovieDetail.setVisibility(View.VISIBLE);
-            mFbaFavourite.setVisibility(View.VISIBLE);
-            mMovieDetailFragment.setMovie(movie);
-        } else {
-            Intent intent = new Intent(this, MovieDetailActivity.class);
-            intent.putExtra(Movie.class.getSimpleName(), movie);
-            startActivity(intent);
-        }
-    }
-
-    @Override
-    public void onMoviesLoadError(@StringRes int stringId) {
-        // TODO Show a message
     }
 
     /**

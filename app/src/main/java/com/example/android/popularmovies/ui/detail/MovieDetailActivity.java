@@ -20,10 +20,13 @@ import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.constraint.ConstraintLayout;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -41,7 +44,6 @@ import com.example.android.popularmovies.data.model.Video;
 import com.example.android.popularmovies.ui.base.BaseActivity;
 import com.example.android.popularmovies.ui.base.MovieTrailerAdapter;
 import com.example.android.popularmovies.ui.base.ReviewsAdapter;
-import com.example.android.popularmovies.util.ExceptionParser;
 import com.squareup.picasso.Picasso;
 
 import java.util.Locale;
@@ -89,6 +91,12 @@ public class MovieDetailActivity extends BaseActivity implements MovieTrailerAda
     ImageView mIvMoviePoster;
     @BindView(R.id.collapsing_toolbar)
     CollapsingToolbarLayout mCollapsingToolbar;
+    @BindView(R.id.constraint_layout)
+    ConstraintLayout mConstraintLayout;
+    @BindView(R.id.cv_reviews)
+    CardView mCvReviews;
+    @BindView(R.id.cv_trailers)
+    CardView mCvTrailers;
 
     // Injects the manager using dagger2
     @Inject
@@ -145,7 +153,7 @@ public class MovieDetailActivity extends BaseActivity implements MovieTrailerAda
     private void initUI(Movie movie) {
         // Use Picasso to load the image into the view
         Picasso.with(mIvMoviePoster.getContext())
-                .load("http://image.tmdb.org/t/p/w500/" + movie.poster_path())
+                .load("http://image.tmdb.org/t/p/w780/" + movie.poster_path())
                 .placeholder(R.drawable.vector_movie_placeholder)
                 .error(R.drawable.vector_movie_placeholder)
                 .into(mIvMoviePoster);
@@ -220,9 +228,11 @@ public class MovieDetailActivity extends BaseActivity implements MovieTrailerAda
         if (!mDataManager.isFavorite(mMovie)) {
             mDataManager.addMovieToFavourites(mMovie);
             mFabMovieDetail.setImageResource(R.drawable.vector_ic_favorite);
+            Snackbar.make(mConstraintLayout, getString(R.string.message_movie_added), Snackbar.LENGTH_LONG).show();
         } else {
             mDataManager.removeFavourite(mMovie);
             mFabMovieDetail.setImageResource(R.drawable.vector_ic_favorite_border);
+            Snackbar.make(mConstraintLayout, getString(R.string.message_movie_removed), Snackbar.LENGTH_LONG).show();
         }
     }
 
@@ -231,7 +241,6 @@ public class MovieDetailActivity extends BaseActivity implements MovieTrailerAda
      * @since 1.0.0 2017/02/14
      */
     private void getMovieTrailers(Movie movie) {
-        // TODO show the loading indicator inside the trailers card
         mDataManager.getTrailers(movie.id())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
@@ -242,15 +251,18 @@ public class MovieDetailActivity extends BaseActivity implements MovieTrailerAda
                         Timber.i("Get Trailers DisposableObserver onNext.");
                         // set the adapter data
                         mMovieTrailerAdapter.setVideos(value.results());
+
+                        // Show the card
+                        mCvTrailers.setVisibility(View.VISIBLE);
                     }
 
                     @Override
                     public void onError(Throwable e) {
                         Timber.e(e, e.getMessage());
                         // Parse the error to show a user friendly message
-                        int errorStringId = ExceptionParser.parseException((Exception) e);
 
-                        // TODO show the error and hide the card
+                        // Hide the card
+                        mCvTrailers.setVisibility(View.VISIBLE);
                     }
 
                     @Override
@@ -265,7 +277,6 @@ public class MovieDetailActivity extends BaseActivity implements MovieTrailerAda
      * @since 1.0.0 2017/02/14
      */
     private void getMovieReviews(Movie movie) {
-        // TODO show the loading indicator inside the reviews card
         try {
             mDataManager.getReviews(movie.id())
                     .observeOn(AndroidSchedulers.mainThread())
@@ -277,15 +288,17 @@ public class MovieDetailActivity extends BaseActivity implements MovieTrailerAda
                             Timber.i("Get Reviews DisposableObserver onNext.");
                             // set the adapter data
                             mReviewsAdapter.setReviews(value.results());
+
+                            // Show the card
+                            mCvReviews.setVisibility(View.VISIBLE);
                         }
 
                         @Override
                         public void onError(Throwable e) {
                             Timber.e(e, e.getMessage());
-                            // Parse the error to show a user friendly message
-                            int errorStringId = ExceptionParser.parseException((Exception) e);
 
-                            // TODO show the error and hide the card
+                            // hide the card
+                            mCvReviews.setVisibility(View.GONE);
                         }
 
                         @Override
