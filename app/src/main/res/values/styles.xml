@@ -27,4 +27,8 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
+    <style name="AppTheme.LinkText" parent="TextAppearance.AppCompat.Caption">
+        <item name="android:textColor">@color/colorBlue</item>
+        <item name="android:textSize">10sp</item>
+    </style>
 </resources>

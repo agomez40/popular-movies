@@ -25,6 +25,8 @@ import android.view.WindowManager;
 
 import com.example.android.popularmovies.R;
 
+import static android.content.res.Configuration.ORIENTATION_PORTRAIT;
+
 /**
  * @author Luis Alberto Gómez Rodríguez (lagomez40@gmail.com)
  * @version 1.0.1 2017/02/19
@@ -52,8 +54,14 @@ public final class ViewUtil {
         // Calculate the number of columns to display based on the screen size and the poster size
         int posterWidth = (int) context.getResources().getDimension(R.dimen.poster_width);
 
-        // Calculate the optimal columns
-        int columns = ViewUtil.getDisplaySize(context).x / posterWidth;
+        // Calculate the optimal columns (on layout-sw600dp 30% of the screen as width
+        int columns;
+
+        if (context.getResources().getConfiguration().orientation == ORIENTATION_PORTRAIT) {
+            columns = (ViewUtil.getDisplaySize(context).y / 30) / posterWidth;
+        } else {
+            columns = ViewUtil.getDisplaySize(context).x / posterWidth;
+        }
 
         if (columns <= 1) {
             columns = DEFAULT_SPAN;

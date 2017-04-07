@@ -14,24 +14,19 @@
  * limitations under the License.
  */
 
-package com.example.android.popularmovies.ui.detail;
+package com.example.android.popularmovies.ui.movies;
 
-import android.content.ActivityNotFoundException;
-import android.content.Intent;
-import android.net.Uri;
+import android.content.Context;
 import android.os.Bundle;
-import android.support.constraint.ConstraintLayout;
-import android.support.customtabs.CustomTabsIntent;
-import android.support.design.widget.CollapsingToolbarLayout;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -42,6 +37,7 @@ import com.example.android.popularmovies.data.model.ReviewCollection;
 import com.example.android.popularmovies.data.model.TrailersCollection;
 import com.example.android.popularmovies.data.model.Video;
 import com.example.android.popularmovies.ui.base.BaseActivity;
+import com.example.android.popularmovies.ui.base.BaseFragment;
 import com.example.android.popularmovies.ui.base.MovieTrailerAdapter;
 import com.example.android.popularmovies.ui.base.ReviewsAdapter;
 import com.squareup.picasso.Picasso;
@@ -52,123 +48,150 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
+import butterknife.Unbinder;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
 
-import static android.content.res.Configuration.ORIENTATION_PORTRAIT;
-
 /**
- * Phone only activity, displays the movie details.
+ * A simple {@link Fragment} subclass.
+ * Activities that contain this fragment must implement the
+ * {@link OnFragmentInteractionListener} interface
+ * to handle interaction events.
+ * Use the {@link MovieDetailFragment#newInstance} factory method to
+ * create an instance of this fragment.
  *
- * @author Luis Alberto Gómez Rodríguez (alberto.gomez@cargomovil.com)
- * @version 1.0.1 2017/02/19
- * @see AppCompatActivity
- * @since 1.0.0 2017/02/14
+ * @author Luis Alberto Gómez Rodríguez (lagomez40@gmail.com)
+ * @version 1.2.0 2017/04/05
+ * @see BaseFragment
+ * @since 1.2.0 2017/04/05
  */
-public class MovieDetailActivity extends BaseActivity implements MovieTrailerAdapter.ItemClickListener {
-
-    // ButterKnife view bindings
-    @BindView(R.id.toolbar)
-    Toolbar mToolbar;
+public class MovieDetailFragment extends BaseFragment implements MovieTrailerAdapter.ItemClickListener {
+    /**
+     * Fragment TAG
+     */
+    public static final String TAG = MovieDetailFragment.class.getSimpleName();
+    @BindView(R.id.iv_movie_poster)
+    ImageView mIvMoviePoster;
     @BindView(R.id.tv_review)
     TextView mTvReview;
     @BindView(R.id.tv_duration)
     TextView mTvDuration;
     @BindView(R.id.tv_release_date)
     TextView mTvReleaseDate;
+    @BindView(R.id.tv_label_overview)
+    TextView mTvLabelOverview;
     @BindView(R.id.tv_overview)
     TextView mTvOverview;
+    @BindView(R.id.tv_label_trailers)
+    TextView mTvLabelTrailers;
     @BindView(R.id.pager_trailers)
     RecyclerView mPagerTrailers;
+    @BindView(R.id.tv_label_reviews)
+    TextView mTvLabelReviews;
     @BindView(R.id.rv_movie_reviews)
     RecyclerView mRvMovieReviews;
-    @BindView(R.id.fab_movie_detail)
-    FloatingActionButton mFabMovieDetail;
-    @BindView(R.id.iv_movie_poster)
-    ImageView mIvMoviePoster;
-    @BindView(R.id.collapsing_toolbar)
-    CollapsingToolbarLayout mCollapsingToolbar;
-    @BindView(R.id.constraint_layout)
-    ConstraintLayout mConstraintLayout;
-    @BindView(R.id.cv_reviews)
-    CardView mCvReviews;
+    @Nullable
+    @BindView(R.id.tv_movie_title)
+    TextView mTvMovieTitle;
     @BindView(R.id.cv_trailers)
     CardView mCvTrailers;
-
-    // Injects the manager using dagger2
+    @BindView(R.id.cv_reviews)
+    CardView mCvReviews;
+    Unbinder unbinder;
+    /**
+     * Inject the data manager using dagger2
+     */
     @Inject
     DataManager mDataManager;
-
-    // The current movie detail
-    private Movie mMovie;
-
-    // App bar image
-    private ImageView mAppBarImage;
-
+    /**
+     * Fragment interaction listener
+     */
+    private OnFragmentInteractionListener mListener;
     // The recycler view adapter
     private ReviewsAdapter mReviewsAdapter;
-
     // Trailers adapter
     private MovieTrailerAdapter mMovieTrailerAdapter;
+
+    /**
+     * Constructor
+     *
+     * @since 1.2.0 2017/04/05
+     */
+    public MovieDetailFragment() {
+        // Required empty public constructor
+    }
+
+    /**
+     * Use this factory method to create a new instance of
+     * this fragment using the provided parameters.
+     *
+     * @return A new instance of fragment MovieDetailFragment.
+     * @since 1.2.0 2017/04/05
+     */
+    public static MovieDetailFragment newInstance(OnFragmentInteractionListener listener) {
+        MovieDetailFragment fragment = new MovieDetailFragment();
+        fragment.mListener = listener;
+        return fragment;
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_movie_detail);
-        ButterKnife.bind(this);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        View view = inflater.inflate(R.layout.fragment_movie_detail, container, false);
+        unbinder = ButterKnife.bind(this, view);
+        return view;
+    }
 
-        // Inject the dependencies
-        activityComponent().inject(this);
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
 
-        setSupportActionBar(mToolbar);
+        // at this point we can inject the dependencies
+        ((BaseActivity) getActivity()).activityComponent().injectFragment(this);
 
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setDisplayShowTitleEnabled(true);
-        }
-
-        if (getResources().getConfiguration().orientation == ORIENTATION_PORTRAIT) {
-            mAppBarImage = (ImageView) findViewById(R.id.app_bar_image);
-        }
-
-        // Get the extras and set the movie title
-        if (!getIntent().getExtras().isEmpty()) {
-            mMovie = getIntent().getParcelableExtra(Movie.class.getSimpleName());
-            initUI(mMovie);
+        if (context instanceof OnFragmentInteractionListener) {
+            mListener = (OnFragmentInteractionListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnFragmentInteractionListener");
         }
     }
 
     /**
-     * Init the UI
-     *
-     * @param movie the movie
-     * @since 1.0.0 2017/02/14
+     * {@inheritDoc}
      */
-    private void initUI(Movie movie) {
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
+    }
+
+    /**
+     * Sets the selected movie to display.
+     *
+     * @param movie The movie to set
+     * @since 1.2.0 2017/04/07
+     */
+    public void setMovie(Movie movie) {
+        // Re the UI
+        mCvReviews.setVisibility(View.GONE);
+        mCvTrailers.setVisibility(View.GONE);
+
         // Use Picasso to load the image into the view
         Picasso.with(mIvMoviePoster.getContext())
-                .load("http://image.tmdb.org/t/p/w780/" + movie.poster_path())
+                .load("http://image.tmdb.org/t/p/w780/" + movie.backdrop_path())
                 .placeholder(R.drawable.vector_movie_placeholder)
                 .error(R.drawable.vector_movie_placeholder)
                 .into(mIvMoviePoster);
-
-        mCollapsingToolbar.setTitle(movie.title());
-
-        if (mAppBarImage != null) {
-            // load the parallax photo
-            Picasso.with(mIvMoviePoster.getContext())
-                    .load("http://image.tmdb.org/t/p/w500/" + movie.backdrop_path())
-                    .placeholder(R.color.colorPrimary)
-                    .error(R.color.colorPrimary)
-                    .fit()
-                    .into(mAppBarImage);
-        }
 
         // Format the release date to get only the year
         mTvReleaseDate.setText(movie.release_date());
@@ -181,9 +204,9 @@ public class MovieDetailActivity extends BaseActivity implements MovieTrailerAda
         // Load the movie trailers
         getMovieTrailers(movie);
 
-        mMovieTrailerAdapter = new MovieTrailerAdapter(this, this);
+        mMovieTrailerAdapter = new MovieTrailerAdapter(getActivity(), this);
 
-        mPagerTrailers.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        mPagerTrailers.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false));
         mPagerTrailers.setHasFixedSize(true);
         mPagerTrailers.setItemAnimator(new DefaultItemAnimator());
         mPagerTrailers.setFocusable(false);
@@ -192,47 +215,36 @@ public class MovieDetailActivity extends BaseActivity implements MovieTrailerAda
         // Load the movie reviews
         getMovieReviews(movie);
 
-        mReviewsAdapter = new ReviewsAdapter(this);
+        mReviewsAdapter = new ReviewsAdapter(getActivity());
 
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
         mRvMovieReviews.setLayoutManager(linearLayoutManager);
         mRvMovieReviews.setHasFixedSize(true);
         mRvMovieReviews.setItemAnimator(new DefaultItemAnimator());
         mRvMovieReviews.setAdapter(mReviewsAdapter);
         mRvMovieReviews.setFocusable(false);
 
-        if (mDataManager.isFavorite(mMovie)) {
-            mFabMovieDetail.setImageResource(R.drawable.vector_ic_favorite);
-        } else {
-            mFabMovieDetail.setImageResource(R.drawable.vector_ic_favorite_border);
+        if (mTvMovieTitle != null) {
+            mTvMovieTitle.setText(movie.title());
         }
     }
 
     /**
-     * Bind a method to an {@link View.OnClickListener OnClickListener} on the view for each ID specified.
-     * <pre><code>
-     * {@literal @}OnClick(R.id.example) void onClick() {
-     *   Toast.makeText(this, "Clicked!", Toast.LENGTH_SHORT).show();
-     * }
-     * </code></pre>
-     * Any number of parameters from
-     * {@link View.OnClickListener#onClick(android.view.View) onClick} may be used on the
-     * method.
-     *
-     * @see View.OnClickListener
-     * @since 1.0.0 2017/02/14
+     * {@inheritDoc}
      */
-    @OnClick(R.id.fab_movie_detail)
-    public void onViewClicked() {
-        // add it to the favourites database
-        if (!mDataManager.isFavorite(mMovie)) {
-            mDataManager.addMovieToFavourites(mMovie);
-            mFabMovieDetail.setImageResource(R.drawable.vector_ic_favorite);
-            Snackbar.make(mConstraintLayout, getString(R.string.message_movie_added), Snackbar.LENGTH_LONG).show();
-        } else {
-            mDataManager.removeFavourite(mMovie);
-            mFabMovieDetail.setImageResource(R.drawable.vector_ic_favorite_border);
-            Snackbar.make(mConstraintLayout, getString(R.string.message_movie_removed), Snackbar.LENGTH_LONG).show();
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        unbinder.unbind();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onVideoClick(Video video) {
+        if (mListener != null) {
+            mListener.playYoutubeVideo(video);
         }
     }
 
@@ -259,10 +271,8 @@ public class MovieDetailActivity extends BaseActivity implements MovieTrailerAda
                     @Override
                     public void onError(Throwable e) {
                         Timber.e(e, e.getMessage());
-                        // Parse the error to show a user friendly message
-
-                        // Hide the card
-                        mCvTrailers.setVisibility(View.VISIBLE);
+                        // hide the card
+                        mCvTrailers.setVisibility(View.GONE);
                     }
 
                     @Override
@@ -296,9 +306,7 @@ public class MovieDetailActivity extends BaseActivity implements MovieTrailerAda
                         @Override
                         public void onError(Throwable e) {
                             Timber.e(e, e.getMessage());
-
-                            // hide the card
-                            mCvReviews.setVisibility(View.GONE);
+                            mCvTrailers.setVisibility(View.VISIBLE);
                         }
 
                         @Override
@@ -312,19 +320,16 @@ public class MovieDetailActivity extends BaseActivity implements MovieTrailerAda
     }
 
     /**
-     * {@inheritDoc}
+     * This interface must be implemented by activities that contain this
+     * fragment to allow an interaction in this fragment to be communicated
+     * to the activity and potentially other fragments contained in that
+     * activity.
+     * <p>
+     * See the Android Training lesson <a href=
+     * "http://developer.android.com/training/basics/fragments/communicating.html"
+     * >Communicating with Other Fragments</a> for more information.
      */
-    @Override
-    public void onVideoClick(Video video) {
-        Intent appIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + video.key()));
-
-        try {
-            startActivity(appIntent);
-        } catch (ActivityNotFoundException ex) {
-            CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
-            builder.setToolbarColor(getResources().getColor(R.color.colorPrimary));
-            CustomTabsIntent customTabsIntent = builder.build();
-            customTabsIntent.launchUrl(this, Uri.parse("http://www.youtube.com/watch?v=" + video.key()));
-        }
+    interface OnFragmentInteractionListener {
+        void playYoutubeVideo(Video video);
     }
 }

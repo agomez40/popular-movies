@@ -16,6 +16,10 @@
 
 apply plugin: 'com.android.application'
 
+repositories {
+    maven {url "https://clojars.org/repo/"}
+}
+
 android {
     compileSdkVersion 25
     buildToolsVersion "25.0.2"
@@ -23,8 +27,8 @@ android {
         applicationId "com.example.android.popularmovies"
         minSdkVersion 16
         targetSdkVersion 25
-        versionCode 2
-        versionName "1.1"
+        versionCode 3
+        versionName "1.2.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
     }
@@ -34,31 +38,97 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    packagingOptions {
+        exclude 'META-INF/rxjava.properties'
+    }
 }
 
 dependencies {
-    final SUPPORT_LIBRARY_VERSION = '25.3.0'
+    final AUTO_VALUE_GSON_VERSION = '0.4.5'
+    final AUTO_VALUE_PARCEL_VERSION = '0.2.5'
+    final AUTO_VALUE_VERSION = '1.4'
+    final BUTTER_KNIFE_VERSION = '8.5.1'
+    final CONSTRAINT_LAYOUT_VERSION = '1.0.2'
+    final DAGGER_VERSION = '2.9'
+    final JAVA_POET_VERSION = '1.8.0'
+    final OK_HTTP_VERSION = '3.6.0'
+    final PICASSO_VERSION = '2.5.2'
+    final RETROFIT_VERSION = '2.2.0'
+    final RX_ANDROID = '2.0.1'
+    final SUPPORT_LIBRARY_VERSION = '25.3.1'
+    final TIMBER_VERSION = '4.1.2'
+    final TRELLO_VERSION = '2.0.1'
+    final LEAK_CANNARY_VERSION = '1.5'
 
     compile fileTree(dir: 'libs', include: ['*.jar'])
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    testCompile 'junit:junit:4.12'
 
     // Android support libraries
+    compile "com.android.support:support-v4:$SUPPORT_LIBRARY_VERSION"
     compile "com.android.support:appcompat-v7:$SUPPORT_LIBRARY_VERSION"
     compile "com.android.support:recyclerview-v7:$SUPPORT_LIBRARY_VERSION"
+    compile "com.android.support:support-annotations:$SUPPORT_LIBRARY_VERSION"
+    compile "com.android.support:cardview-v7:$SUPPORT_LIBRARY_VERSION"
+    compile "com.android.support.constraint:constraint-layout:$CONSTRAINT_LAYOUT_VERSION"
 
     //Material Support Design
     compile "com.android.support:design:$SUPPORT_LIBRARY_VERSION"
+    compile "com.android.support:customtabs:$SUPPORT_LIBRARY_VERSION"
 
     // Picasso
-    compile 'com.squareup.picasso:picasso:2.5.2'
+    compile "com.squareup.picasso:picasso:$PICASSO_VERSION"
+
+    // RetroFit
+    compile "com.squareup.retrofit2:retrofit:$RETROFIT_VERSION"
+    compile "com.squareup.retrofit2:converter-gson:$RETROFIT_VERSION"
+    compile "com.squareup.retrofit2:adapter-rxjava2:$RETROFIT_VERSION"
+
+    // RXJava
+    compile "io.reactivex.rxjava2:rxandroid:$RX_ANDROID"
+    compile "io.reactivex.rxjava2:rxjava:$RX_ANDROID"
+
+    // Android-specific lifecycles to avoid leaks on subscriptions
+    compile "com.trello.rxlifecycle2:rxlifecycle:$TRELLO_VERSION"
+    compile "com.trello.rxlifecycle2:rxlifecycle-android:$TRELLO_VERSION"
+    compile "com.trello.rxlifecycle2:rxlifecycle-components:$TRELLO_VERSION"
+
+    // Timber logging
+    compile "com.jakewharton.timber:timber:$TIMBER_VERSION"
 
     // OkHttp as recommended by the course for easy HTTP
-    compile 'com.squareup.okhttp:okhttp:2.7.5'
+    compile "com.squareup.okhttp3:okhttp:$OK_HTTP_VERSION"
+    compile "com.squareup.okhttp3:logging-interceptor:$OK_HTTP_VERSION"
 
     // ButterKnife <3
-    compile 'com.jakewharton:butterknife:8.5.1'
-    annotationProcessor 'com.jakewharton:butterknife-compiler:8.5.1'
+    compile "com.jakewharton:butterknife:$BUTTER_KNIFE_VERSION"
+    annotationProcessor "com.jakewharton:butterknife-compiler:$BUTTER_KNIFE_VERSION"
+
+    provided "com.jakewharton.auto.value:auto-value-annotations:$AUTO_VALUE_VERSION"
+    provided "com.ryanharter.auto.value:auto-value-gson:$AUTO_VALUE_GSON_VERSION"
+    annotationProcessor "com.google.auto.value:auto-value:$AUTO_VALUE_VERSION"
+    annotationProcessor "com.ryanharter.auto.value:auto-value-parcel:$AUTO_VALUE_PARCEL_VERSION"
+    annotationProcessor "com.ryanharter.auto.value:auto-value-gson:$AUTO_VALUE_GSON_VERSION"
+    annotationProcessor "com.squareup:javapoet:$JAVA_POET_VERSION"
+
+    // Dagger2
+    compile "com.google.dagger:dagger:$DAGGER_VERSION"
+    //Required by Dagger2
+    annotationProcessor "com.google.dagger:dagger-compiler:$DAGGER_VERSION"
+
+    // Leak cannary
+    debugCompile "com.squareup.leakcanary:leakcanary-android:$LEAK_CANNARY_VERSION"
+    releaseCompile "com.squareup.leakcanary:leakcanary-android-no-op:$LEAK_CANNARY_VERSION"
+    testCompile "com.squareup.leakcanary:leakcanary-android-no-op:$LEAK_CANNARY_VERSION"
+
+    // Icepick
+    compile 'frankiesardo:icepick:3.2.0'
+    provided 'frankiesardo:icepick-processor:3.2.0'
+
+    compile 'com.android.support:support-v4:25.3.1'
+    testCompile 'junit:junit:4.12'
+    androidTestCompile 'com.google.code.findbugs:jsr305:3.0.1'
+    provided 'org.glassfish:javax.annotation:10.0-b28'
 }

@@ -14,55 +14,69 @@
  * limitations under the License.
  */
 
-package com.example.android.popularmovies.ui.movies;
+package com.example.android.popularmovies.ui.base;
 
 import android.content.Context;
-import android.os.Parcelable;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.example.android.popularmovies.R;
-import com.example.android.popularmovies.model.Movie;
+import com.example.android.popularmovies.data.model.Review;
+import com.example.android.popularmovies.data.model.Video;
 import com.squareup.picasso.Picasso;
 
-import java.util.ArrayList;
 import java.util.List;
+
+import timber.log.Timber;
 
 /**
  * @author Luis Alberto Gómez Rodríguez (lagomez40@gmail.com)
- * @version 1.0.0 2017/02/13
+ * @version 1.2.0 2017/03/30
  * @see android.support.v7.widget.RecyclerView.Adapter
- * @see Movie
- * @since 1.0.0 2017/02/13
+ * @see Video
+ * @since 1.2.0 2017/03/30
  */
-class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesViewHolder> {
+public class MovieTrailerAdapter extends RecyclerView.Adapter<MovieTrailerAdapter.TrailersViewHolder> {
     /**
      * Class Logging tag
      */
-    private static final String TAG = MoviesAdapter.class.getSimpleName();
-    private static final double ASPECT_RATIO = 185.0 / 278.0;
+    private static final String TAG = MovieTrailerAdapter.class.getSimpleName();
+
     /**
-     * Click listener
+     * Youtube Data API URL
      */
-    private final MovieItemClickListener mListener;
+    private static final String YOUTUBE_IMG_URL = "https://i.ytimg.com/vi/{id}/hqdefault.jpg";
+
     /**
      * The data collection for the adapter
      */
-    private List<Movie> mMovies;
+    private List<Video> mVideos;
+
+    /**
+     * The container context
+     */
+    private Context mContext;
+
+    /**
+     * RecyclerView click listener
+     */
+    private ItemClickListener mListener;
 
     /**
      * Constructor
      *
-     * @param listener     The on click listener
-     * @since 1.0.0 2017/02/13
+     * @param context  The application context
+     * @param listener The RecyclerView click listener
+     * @since 1.2.0 2017/03/30
      */
-    MoviesAdapter(MovieItemClickListener listener) {
+    public MovieTrailerAdapter(Context context, ItemClickListener listener) {
+        this.mContext = context;
         this.mListener = listener;
-        Log.d(TAG, "Created.");
+        Timber.d(TAG.concat(" Created."));
     }
 
     /**
@@ -75,17 +89,15 @@ class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesViewHolder>
      *                  {@link android.support.v7.widget.RecyclerView.Adapter#getItemViewType(int)}
      *                  for more details.
      * @return A new NumberViewHolder that holds the View for each list item
-     * @since 1.0.0 2017/02/13
+     * @since 1.2.0 2017/03/30
      */
     @Override
-    public MoviesViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
-        LayoutInflater inflater = LayoutInflater.from(viewGroup.getContext());
+    public MovieTrailerAdapter.TrailersViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
+        LayoutInflater inflater = LayoutInflater.from(mContext);
 
-        View view = inflater.inflate(R.layout.movie_grid_item, viewGroup, false);
-        RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) view.getLayoutParams();
-        params.height = (int) (view.getResources().getDimension(R.dimen.poster_height));
+        View view = inflater.inflate(R.layout.trailer_item, viewGroup, false);
 
-        return new MoviesViewHolder(view);
+        return new TrailersViewHolder(view);
     }
 
     /**
@@ -97,17 +109,18 @@ class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesViewHolder>
      * @param holder   The ViewHolder which should be updated to represent the contents of the
      *                 item at the given position in the data set.
      * @param position The position of the item within the adapter's data set.
-     * @since 1.0.0 2017/02/13
+     * @since 1.2.0 2017/03/30
      */
     @Override
-    public void onBindViewHolder(MoviesViewHolder holder, int position) {
-        Movie movie = mMovies.get(position);
-        // Use Picasso to load the image into the view
-        Context context = holder.moviePoster.getContext();
+    public void onBindViewHolder(MovieTrailerAdapter.TrailersViewHolder holder, int position) {
+        Video video = mVideos.get(position);
+        holder.tvTitle.setText(video.name());
 
-        Picasso.with(context).load("http://image.tmdb.org/t/p/w185/" + movie.getPosterPath())
-                .fit()
-                .into(holder.moviePoster);
+        // Load the image using picasso
+        String url = YOUTUBE_IMG_URL.replace("{id}", video.key());
+        Picasso.with(mContext).load(url)
+                .placeholder(R.drawable.vector_movie_placeholder)
+                .into(holder.ivThumbnail);
     }
 
     /**
@@ -115,88 +128,72 @@ class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesViewHolder>
      */
     @Override
     public int getItemCount() {
-        return mMovies.size();
+        return mVideos != null ? mVideos.size() : 0;
     }
 
     /**
-     * Gets all the current adapter movies
+     * Sets the video collection to display
      *
-     * @return the items stored in the adapter
-     * @since 1.0.0 2017/02/13
+     * @param videos The videos to set
+     * @since 1.2.0 2017/03/30
      */
-    ArrayList<? extends Parcelable> getItems() {
-        if (mMovies != null) {
-            return new ArrayList<>(mMovies);
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * Sets the data collection
-     *
-     * @param movies the movies to set
-     * @since 1.0.0 2017/02/13
-     */
-    void setMovies(List<Movie> movies) {
-        this.mMovies = movies;
+    public void setVideos(List<Video> videos) {
+        this.mVideos = videos;
         notifyDataSetChanged();
     }
 
     /**
-     * @since 1.0.0 2017/02/13
+     * @since 1.2.0 2017/03/30
      */
-    interface MovieItemClickListener {
+    public interface ItemClickListener {
         /**
-         * OnMovieItemClickListener event
+         * OnItemClickListener event
          *
-         * @param movie the item metadata
-         * @since 1.0.0 2017/02/13
+         * @param video the item metadata
+         * @since 1.2.0 2017/03/30
          */
-        void onMovieClick(Movie movie);
+        void onVideoClick(Video video);
     }
 
     /**
-     * A ViewHolder describes a {@link Movie }item view and metadata about its place within the RecyclerView.
+     * A ViewHolder describes a {@link Review }item view and metadata about its place within the RecyclerView.
      * <p>
      * <p>{@link RecyclerView.Adapter} implementations should subclass ViewHolder and add fields for caching
      * potentially expensive {@link View#findViewById(int)} results.</p>
      *
      * @author Luis Alberto Gómez Rodríguez (lagomez40@gmail.com)
-     * @version 1.0.0 2017/02/13
+     * @version 1.2.0 2017/03/30
      * @see RecyclerView.ViewHolder
-     * @since 1.0.0 2017/02/13
+     * @since 1.2.0 2017/03/30
      */
-    class MoviesViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-
-        /**
-         * The movie poster image view
-         */
-        private final ImageView moviePoster;
+    class TrailersViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        private final TextView tvTitle;
+        private final ImageView ivThumbnail;
 
         /**
          * Constructor
          *
-         * @param itemView     the view to bind
-         *
-         * @since 1.0.0 2017/02/13
+         * @param view the view to set
+         * @since 1.2.0 2017/03/30
          */
-        MoviesViewHolder(View itemView) {
-            super(itemView);
+        TrailersViewHolder(View view) {
+            super(view);
 
-            moviePoster = (ImageView) itemView.findViewById(R.id.iv_movie_poster);
-            moviePoster.setOnClickListener(this);
+            tvTitle = (TextView) view.findViewById(R.id.tv_video_title);
+            ivThumbnail = (ImageView) view.findViewById(R.id.iv_thumbnail);
+
+            ivThumbnail.setOnClickListener(this);
         }
 
         /**
          * {@inheritDoc}
          */
         @Override
-        public void onClick(View view) {
+        public void onClick(View v) {
             int clickedPosition = getAdapterPosition();
 
             if (mListener != null) {
-                mListener.onMovieClick(mMovies.get(clickedPosition));
+                mListener.onVideoClick(mVideos.get(clickedPosition));
             }
         }
     }

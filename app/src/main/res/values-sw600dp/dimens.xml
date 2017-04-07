@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Copyright 2017 Luis Alberto Gómez Rodríguez
   ~
@@ -16,10 +15,6 @@
   -->
 
 <resources>
-    <color name="colorPrimary">#424242</color>
-    <color name="colorPrimaryDark">#212121</color>
-    <color name="colorAccent">#FF5252</color>
-    <color name="colorAccentAlt">#009688</color>
-    <color name="colorBlue">#2196F3</color>
-    <color name="grey">#E0E0E0</color>
+    <dimen name="poster_width">150dp</dimen>
+    <dimen name="poster_height">180dp</dimen>
 </resources>

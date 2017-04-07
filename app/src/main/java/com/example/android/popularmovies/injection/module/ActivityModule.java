@@ -14,28 +14,35 @@
  * limitations under the License.
  */
 
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
+package com.example.android.popularmovies.injection.module;
 
-buildscript {
-    repositories {
-        jcenter()
-        mavenCentral()
-        maven {url "https://clojars.org/repo/"}
+import android.app.Activity;
+import android.content.Context;
+
+import com.example.android.popularmovies.injection.context.ActivityContext;
+
+import dagger.Module;
+import dagger.Provides;
+
+/**
+ * Created by Beto on 18/03/2017.
+ */
+@Module
+public class ActivityModule {
+    private Activity mActivity;
+
+    public ActivityModule(Activity activity) {
+        mActivity = activity;
     }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:2.3.1'
 
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
+    @Provides
+    Activity provideActivity() {
+        return mActivity;
     }
-}
 
-allprojects {
-    repositories {
-        jcenter()
+    @Provides
+    @ActivityContext
+    Context providesContext() {
+        return mActivity;
     }
-}
-
-task clean(type: Delete) {
-    delete rootProject.buildDir
 }
